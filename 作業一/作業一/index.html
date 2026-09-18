@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ym_curl.py - 簡易 curl + 中華職棒戰績工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+            line-height: 1.7;
+            color: #3d3d3d;
+            background: #f5f4f0;
+        }
+        header {
+            text-align: center;
+            padding: 70px 20px 55px;
+            background: linear-gradient(135deg, #5a7d8a 0%, #6b9a8d 50%, #7d9a7a 100%);
+            color: #fff;
+        }
+        header .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 20px;
+            padding: 4px 18px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+        header h1 {
+            font-size: 44px;
+            margin-bottom: 14px;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+        header h1 span {
+            color: #c8dfd6;
+        }
+        header p {
+            font-size: 17px;
+            color: #ddeee6;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px 60px;
+        }
+        .section {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 30px 35px;
+            margin-bottom: 26px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e8e6e1;
+        }
+        .section h2 {
+            font-size: 22px;
+            color: #4a6e6e;
+            margin-bottom: 18px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #c9d8d2;
+            letter-spacing: 0.5px;
+        }
+        .section h3 {
+            font-size: 16px;
+            color: #5a7d70;
+            margin: 18px 0 8px;
+        }
+        .section p, .section li {
+            font-size: 15.5px;
+            color: #4a4a4a;
+        }
+        ul, ol {
+            padding-left: 22px;
+        }
+        li {
+            margin-bottom: 6px;
+        }
+        .code-block {
+            background: #2e3440;
+            color: #d8dee9;
+            padding: 16px 18px;
+            border-radius: 8px;
+            font-family: 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 10px 0 4px;
+        }
+        .code-block .comment {
+            color: #616e88;
+        }
+        .code-block .cmd {
+            color: #ebcb8b;
+        }
+        .code-block .out {
+            color: #a3be8c;
+        }
+        .code-block .hl {
+            color: #88c0d0;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            font-size: 14.5px;
+        }
+        th, td {
+            border: 1px solid #e0ddd6;
+            padding: 10px 14px;
+            text-align: left;
+        }
+        th {
+            background: #eef2ef;
+            color: #4a6e6e;
+            font-weight: 600;
+        }
+        tr:nth-child(even) td {
+            background: #f7f7f4;
+        }
+        .option {
+            font-family: 'Cascadia Code', 'Consolas', monospace;
+            background: #eef2ef;
+            border-radius: 4px;
+            padding: 1px 7px;
+            font-size: 13.5px;
+            color: #3d6b60;
+            white-space: nowrap;
+        }
+        .footer-note {
+            text-align: center;
+            color: #9a9a90;
+            font-size: 13px;
+            padding: 20px 0 40px;
+        }
+        .chart-img {
+            width: 100%;
+            max-width: 720px;
+            display: block;
+            margin: 16px auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e8e6e1;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="badge"> 作業一</div>
+    <h1>ym<span>_</span>curl.py</h1>
+    <p>以 Python 打造的輕量級命令列工具，支援基本 curl 請求，並內建中華職棒戰績爬取與圖表視覺化功能。</p>
+</header>
+
+<div class="container">
+
+    <div class="section">
+        <h2>專案簡介</h2>
+        <p>本專案以 Python 為核心，實作一個簡易的 <strong>curl 替代工具</strong>。除了一般的 HTTP 請求功能外，更進一步整合了中華職棒 CPBL 官方網站的戰績爬取與視覺化圖表，讓工具兼具實用性與趣味性。</p>
+        <p style="margin-top:10px;">圖表功能則借助 <code>matplotlib</code> 與 <code>beautifulsoup4</code> 兩個第三方套件完成，分別負責圖表繪製與 HTML 解析。</p>
+    </div>
+
+    <div class="section">
+        <h2>使用方式</h2>
+        <h3>① 抓取網頁原始碼</h3>
+        <div class="code-block">
+            <span class="comment"># 基本網頁抓取</span><br>
+            py ym_curl.py <span class="cmd">https://example.com</span>
+        </div>
+
+
+        <h3>②送出 POST 資料</h3>
+        <div class="code-block">
+            py ym_curl.py -X POST -d <span class="cmd">"name=ccc&msg=hello"</span> <span class="cmd">https://example.com/api</span>
+        </div>
+
+        <h3>③ 查看中華職棒戰績</h3>
+        <div class="code-block">
+            py ym_curl.py <span class="hl">--cpbl</span><br><br>
+            <span class="comment"># 輸出範例：</span><br>
+            <span class="out">======================================================================</span><br>
+            <span class="out">  中華職棒 2026 下半季戰績</span><br>
+            <span class="out">======================================================================</span><br>
+            <span class="out">  排名  球隊          出賽    勝    和    敗    勝率    勝差</span><br>
+            <span class="out">----------------------------------------------------------------------</span><br>
+            <span class="out">    1  樂天桃猿        33    18     0    15   0.545      -</span><br>
+            <span class="out">    2  中信兄弟        37    20     0    17   0.541      0</span><br>
+            <span class="out">    3  味全龍          35    18     0    17   0.514      1</span><br>
+            <span class="out">    4  統一獅          38    19     0    19   0.500    1.5</span><br>
+            <span class="out">    5  台鋼雄鷹        34    16     0    18   0.471    2.5</span><br>
+            <span class="out">    6  富邦悍將        35    15     0    20   0.429      4</span><br>
+            <span class="out">----------------------------------------------------------------------</span>
+        </div>
+
+        <h3>④ 產生戰績圖表</h3>
+        <div class="code-block">
+            py ym_curl.py <span class="hl">--cpbl --chart</span><br><br>
+            <span class="comment"># 會產生兩個圖檔：</span><br>
+            <span class="out">圖表已儲存: ./cpbl_standings_chart.png</span><br>
+            <span class="out">排名圖已儲存: ./cpbl_winrate_ranking.png</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>戰績圖表預覽</h2>
+        <p>以下為使用 <span class="option">--cpbl --chart</span> 產生的四合一分析圖表：</p>
+        <img class="chart-img" src="cpbl_standings_chart.png" alt="中華職棒戰績四合一分析圖">
+        <p style="margin-top:16px;">獨立的勝率排名大圖：</p>
+        <img class="chart-img" src="cpbl_winrate_ranking.png" alt="中華職棒勝率排名圖">
+    </div>
+
+    <div class="section">
+        <h2>專案檔案結構</h2>
+        <table>
+            <tr>
+                <th>檔案</th>
+                <th>用途</th>
+            </tr>
+            <tr>
+                <td><span class="option">ym_curl.py</span></td>
+                <td>主程式：curl 功能 + CPBL 戰績爬取 + 圖表生成</td>
+            </tr>
+            <tr>
+                <td><span class="option">cpbl_standings_chart.png</span></td>
+                <td>四合一戰績分析圖（勝敗場數、勝率排名、勝差分佈、雷達圖）</td>
+            </tr>
+            <tr>
+                <td><span class="option">cpbl_winrate_ranking.png</span></td>
+                <td>各隊勝率排名獨立大圖</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>所需套件</h2>
+        <p>本工具使用以下第三方套件（CPBL 功能所需）：</p>
+        <div class="code-block">
+            py -m pip install <span class="cmd">beautifulsoup4</span> <span class="cmd">matplotlib</span>
+        </div>
+        <table style="margin-top: 14px;">
+            <tr>
+                <th>套件</th>
+                <th>用途</th>
+            </tr>
+            <tr>
+                <td><span class="option">beautifulsoup4</span></td>
+                <td>解析 CPBL 官網 HTML，提取戰績表格資料</td>
+            </tr>
+            <tr>
+                <td><span class="option">matplotlib</span></td>
+                <td>繪製戰績長條圖、勝率排名圖、圓餅圖、雷達圖</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>原始碼重點</h2>
+        <ul>
+            
+            <li><strong>SSL 安全：</strong>透過 <span class="option">ssl.create_default_context()</span> 與 <span class="option">HTTPSHandler</span> 確保 HTTPS 連線安全。</li>
+            <li><strong>CPBL 爬蟲：</strong>使用 <span class="option">BeautifulSoup</span> 解析 <span class="option">cpbl.com.tw</span> 的 HTML 表格，並以正則備援方案確保容錯。</li>
+            <li><strong>圖表生成：</strong>以 <span class="option">matplotlib</span> 繪製四種圖表，自動偵測系統中文字型，確保中文正常顯示。</li>
+            <li><strong>隊伍配色：</strong>依據各隊官方色彩設定對應顏色，提升圖表辨識度。</li>
+            
+    </div>
+
+    <div class="footer-note">現代軟體工程課程 · ym_curl.py 專案頁面</div>
+
+</div>
+
+</body>
+</html>
