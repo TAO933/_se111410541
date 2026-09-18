@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>校務系統 | 學生 · 教師 · 管理員</title>
+<style>
+:root{
+  --bg:#f1f5f9; --card:#fff; --ink:#0f172a; --muted:#64748b;
+  --primary:#2563eb; --primary-d:#1d4ed8; --green:#16a34a; --red:#dc2626;
+  --amber:#d97706; --border:#e2e8f0; --radius:12px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC",system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+a{color:var(--primary)}
+/* ===== 登入頁 ===== */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(135deg,#1e3a8a,#2563eb 55%,#06b6d4)}
+.login-card{width:100%;max-width:960px;background:#fff;border-radius:20px;overflow:hidden;display:grid;grid-template-columns:1fr 1.1fr;box-shadow:0 25px 60px rgba(0,0,0,.3)}
+.login-left{background:linear-gradient(160deg,#172554,#1e40af);color:#fff;padding:40px 36px;display:flex;flex-direction:column;justify-content:center}
+.login-left h1{margin:0 0 8px;font-size:32px}
+.login-left p{opacity:.85;line-height:1.7}
+.feat{margin-top:20px;display:grid;gap:10px;font-size:14px}
+.feat div{background:rgba(255,255,255,.12);padding:10px 12px;border-radius:10px}
+.login-right{padding:36px 34px}
+.tabs{display:flex;background:#f1f5f9;border-radius:10px;padding:4px;margin-bottom:18px}
+.tabs button{flex:1;border:0;background:transparent;padding:10px;border-radius:8px;cursor:pointer;font-size:15px;font-weight:700;color:var(--muted)}
+.tabs button.active{background:#fff;color:var(--primary);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+label{display:block;font-size:14px;font-weight:700;margin:12px 0 6px}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:9px;font-size:15px;font-family:inherit}
+textarea{resize:vertical;min-height:90px}
+.btn{border:0;border-radius:9px;padding:10px 16px;font-size:15px;font-weight:700;cursor:pointer}
+.btn-p{background:var(--primary);color:#fff;width:100%;margin-top:16px;padding:12px}
+.btn-p:hover{background:var(--primary-d)}
+.btn-g{background:#eef2ff;color:var(--primary)}
+.btn-danger{background:#fee2e2;color:var(--red)}
+.btn-ok{background:#dcfce7;color:#15803d}
+.btn-sm{padding:6px 10px;font-size:13px;width:auto;margin:0}
+.demo{margin-top:16px;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:10px;padding:12px;font-size:13px}
+.demo button{margin:4px 4px 0 0}
+/* ===== 主介面 ===== */
+#app{display:none;min-height:100vh}
+.topbar{background:#0f172a;color:#fff;padding:12px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
+.topbar .logo{font-weight:900;font-size:18px}
+.badge{background:#334155;padding:3px 10px;border-radius:99px;font-size:12px}
+.topbar .sp{flex:1}
+.layout{display:grid;grid-template-columns:230px 1fr;min-height:calc(100vh - 53px)}
+.side{background:#fff;border-right:1px solid var(--border);padding:14px;display:flex;flex-direction:column;gap:6px}
+.side button.nav{border:0;background:transparent;text-align:left;padding:11px 12px;border-radius:10px;font-size:15px;cursor:pointer;color:#334155;font-weight:600}
+.side button.nav:hover{background:#f1f5f9}
+.side button.nav.active{background:#dbeafe;color:var(--primary-d)}
+.main{padding:22px;max-width:1150px;width:100%}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.card h2{margin:0 0 4px;font-size:20px}
+.sub{color:var(--muted);font-size:13.5px;margin-bottom:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+table{width:100%;border-collapse:collapse;font-size:14.5px;margin-top:8px}
+th,td{border-bottom:1px solid var(--border);padding:9px 8px;text-align:left;vertical-align:middle}
+th{background:#f8fafc;color:#475569;font-size:13px}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:700}
+.p-green{background:#dcfce7;color:#15803d}.p-red{background:#fee2e2;color:#b91c1c}
+.p-blue{background:#dbeafe;color:#1d4ed8}.p-amber{background:#fef3c7;color:#b45309}.p-gray{background:#f1f5f9;color:#475569}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}
+.toolbar input,.toolbar select{width:auto}
+.kpi{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}
+.kpi .k{background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:10px 16px;min-width:140px}
+.kpi .k b{font-size:22px;display:block}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal{background:#fff;border-radius:14px;max-width:640px;width:100%;padding:22px;max-height:90vh;overflow:auto}
+.modal h3{margin-top:0}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+/* 課表 */
+.tt{display:grid;grid-template-columns:70px repeat(5,1fr);gap:6px;margin-top:10px}
+.tt .h{background:#0f172a;color:#fff;border-radius:8px;padding:8px;text-align:center;font-weight:800;font-size:13px}
+.tt .t{background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:6px;font-size:12px;text-align:center;color:var(--muted)}
+.tt .c{background:#dbeafe;border:1px solid #bfdbfe;border-radius:8px;padding:6px;font-size:12.5px;line-height:1.5}
+.tt .c b{display:block;font-size:13px}
+.empty{background:#fff;border:1px dashed var(--border);border-radius:8px;min-height:44px}
+.ann{border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.ann h4{margin:0 0 4px;font-size:16px}
+.ann .meta{font-size:12.5px;color:var(--muted);margin-bottom:6px}
+@media(max-width:900px){.login-card{grid-template-columns:1fr}.login-left{display:none}.layout{grid-template-columns:1fr}.side{flex-direction:row;overflow:auto}.grid2,.grid3,.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ============ 登入 ============ -->
+<div id="loginPage" class="login-wrap">
+  <div class="login-card">
+    <div class="login-left">
+      <h1 style="text-align:center">校務系統</h1>
+    </div>
+    <div class="login-right">
+      <h2 style="margin:0">登入</h2>
+      <p class="sub">請選擇身分並輸入帳號密碼</p>
+      <div class="tabs" id="roleTabs">
+        <button data-role="student" class="active">學生</button>
+        <button data-role="teacher">老師</button>
+        <button data-role="admin">管理員</button>
+      </div>
+      <label>帳號</label><input id="loginAcc" placeholder="例如 s001">
+      <label>密碼</label><input id="loginPw" type="password" placeholder="預設 123456，管理員 admin123">
+      <button class="btn btn-p" onclick="doLogin()">登入</button>
+      <div class="demo" id="demoBox"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 主程式 ============ -->
+<div id="app">
+  <div class="topbar">
+    <span class="logo">🎓 校務系統</span>
+    <span class="badge" id="roleBadge"></span>
+    <span id="userInfo" style="font-size:14px;opacity:.9"></span>
+    <span class="sp"></span>
+    <button class="btn btn-sm btn-g" onclick="resetDB()">↺ 還原展示資料</button>
+    <button class="btn btn-sm btn-danger" onclick="logout()">登出</button>
+  </div>
+  <div class="layout">
+    <div class="side" id="sideNav"></div>
+    <div class="main" id="main"></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalBg"><div class="modal" id="modalBox"></div></div>
+
+<script>
+/* ================= 資料層（SQLite 後端，localStorage 已移除） ================= */
+const CURR_SEM = "114-1";
+const API_BASE = "";
+let DB = null, session = null, curView = "", curTeacherCourse = null, teacherTab = "students";
+
+function seedDB(){
+  // _g: 由平時/期中/期末自動換算學期成績(30/30/40)
+  const _g=(sid,cid,r,m,f)=>({studentId:sid,courseId:cid,regular:r,midterm:m,final:f,score:Math.round(r*0.3+m*0.3+f*0.4)});
+  const _c=(s,d)=>({r:Math.max(0,s-2),m:Math.min(100,s+2),f:Math.max(0,s-1)});
+  const G=(sid,cid,s)=>{const v=_c(s);return _g(sid,cid,v.r,v.m,v.f);};
+  return {
+    users:[
+      {id:"admin",account:"admin",password:"admin123",role:"admin",name:"張主任",dept:"教務處",email:"admin@school.edu.tw",phone:"02-27712171",birthday:"1975-06-12",address:"台北市忠孝東路一段1號"},
+      {id:"t001",account:"t001",password:"123456",role:"teacher",name:"陳志明",dept:"資訊工程系",email:"chen@school.edu.tw",phone:"0912-345678",birthday:"1980-03-15",address:"台北市大安區復興南路一段100號"},
+      {id:"t002",account:"t002",password:"123456",role:"teacher",name:"李雅婷",dept:"數學系",email:"lee@school.edu.tw",phone:"0923-456789",birthday:"1985-07-22",address:"新北市板橋區文化路二段50號"},
+      {id:"t003",account:"t003",password:"123456",role:"teacher",name:"黃美玲",dept:"外國語文系",email:"huang@school.edu.tw",phone:"0934-567890",birthday:"1988-11-30",address:"台北市士林區中山北路五段200號"},
+      {id:"t004",account:"t004",password:"123456",role:"teacher",name:"林建國",dept:"體育系",email:"lin@school.edu.tw",phone:"0945-678901",birthday:"1978-01-08",address:"台北市松山區南京東路四段300號"},
+      {id:"s001",account:"s001",password:"123456",role:"student",name:"王小明",dept:"資工二年",email:"s001@school.edu.tw",phone:"0911-111001",birthday:"2005-02-14",address:"台北市信義區松仁路88號5樓",advisorId:"t001"},
+      {id:"s002",account:"s002",password:"123456",role:"student",name:"林小美",dept:"資工二年",email:"s002@school.edu.tw",phone:"0911-111002",birthday:"2005-05-20",address:"台北市內湖區江南街71巷10號",advisorId:"t001"},
+      {id:"s003",account:"s003",password:"123456",role:"student",name:"陳大仁",dept:"資工二年",email:"s003@school.edu.tw",phone:"0911-111003",birthday:"2004-12-03",address:"新北市中和區景平路456號",advisorId:"t001"},
+      {id:"s004",account:"s004",password:"123456",role:"student",name:"張小華",dept:"資工二年",email:"s004@school.edu.tw",phone:"0911-111004",birthday:"2005-08-27",address:"台北市文山區興隆路三段22號",advisorId:"t002"},
+      {id:"s005",account:"s005",password:"123456",role:"student",name:"劉志偉",dept:"資工二年",email:"s005@school.edu.tw",phone:"0911-111005",birthday:"2005-01-11",address:"新北市新店區北新路一段78號",advisorId:"t002"},
+      {id:"s006",account:"s006",password:"123456",role:"student",name:"蔡欣怡",dept:"資工一年",email:"s006@school.edu.tw",phone:"0911-111006",birthday:"2006-04-19",address:"台北市北投區光明路165號",advisorId:"t003"},
+      {id:"s007",account:"s007",password:"123456",role:"student",name:"謝明哲",dept:"資工一年",email:"s007@school.edu.tw",phone:"0911-111007",birthday:"2006-09-25",address:"台北市大同區承德路三段90號",advisorId:"t003"},
+      {id:"s008",account:"s008",password:"123456",role:"student",name:"韓佳玲",dept:"資工一年",email:"s008@school.edu.tw",phone:"0911-111008",birthday:"2006-07-07",address:"新北市土城區中央路一段200號",advisorId:"t003"},
+      {id:"s009",account:"s009",password:"123456",role:"student",name:"賴俊宏",dept:"資工一年",email:"s009@school.edu.tw",phone:"0911-111009",birthday:"2006-03-16",address:"台北市中山區民生東路二段120號",advisorId:"t004"},
+      {id:"s010",account:"s010",password:"123456",role:"student",name:"許雅筑",dept:"資工一年",email:"s010@school.edu.tw",phone:"0911-111010",birthday:"2006-10-29",address:"台北市南港區研究院路二段60號",advisorId:"t004"}
+    ],
+    courses:[
+      {id:"C001",code:"CS101",name:"程式設計(一)",teacherId:"t001",credits:3,semester:"114-1",time:"週一 09:00-12:00",room:"資102",capacity:60,desc:"C 語言基礎與邏輯訓練"},
+      {id:"C002",code:"CS201",name:"資料結構",teacherId:"t001",credits:3,semester:"114-1",time:"週二 09:00-12:00",room:"資102",capacity:55,desc:"陣列、鏈結串列、樹、圖"},
+      {id:"C003",code:"MATH101",name:"微積分",teacherId:"t002",credits:3,semester:"114-1",time:"週三 09:00-12:00",room:"理201",capacity:80,desc:"極限、微分、積分"},
+      {id:"C004",code:"ENG101",name:"大一英文",teacherId:"t003",credits:2,semester:"114-1",time:"週四 10:00-12:00",room:"文305",capacity:50,desc:"英文閱讀與寫作"},
+      {id:"C005",code:"CS301",name:"資料庫系統",teacherId:"t001",credits:3,semester:"114-1",time:"週五 09:00-12:00",room:"資103",capacity:55,desc:"SQL 與資料庫設計"},
+      {id:"C006",code:"PE101",name:"體育",teacherId:"t004",credits:1,semester:"114-1",time:"週二 14:00-16:00",room:"操場",capacity:60,desc:"體適能"},
+      {id:"C007",code:"STAT201",name:"統計學",teacherId:"t002",credits:3,semester:"114-1",time:"週四 13:00-16:00",room:"理202",capacity:60,desc:"機率與統計推論"},
+      {id:"C008",code:"ENG201",name:"英文會話",teacherId:"t003",credits:2,semester:"114-1",time:"週五 13:00-15:00",room:"文306",capacity:45,desc:"口說與聽力訓練"},
+      {id:"H001",code:"CS100",name:"計算機概論",teacherId:"t001",credits:3,semester:"113-1",time:"週一 09:00-12:00",room:"資102",capacity:60,desc:"已結算"},
+      {id:"H002",code:"MATH100",name:"線性代數",teacherId:"t002",credits:3,semester:"113-1",time:"週三 09:00-12:00",room:"理201",capacity:80,desc:"已結算"},
+      {id:"H003",code:"CS102",name:"程式設計(二)",teacherId:"t001",credits:3,semester:"113-2",time:"週一 09:00-12:00",room:"資102",capacity:60,desc:"已結算"},
+      {id:"H004",code:"CS103",name:"離散數學",teacherId:"t002",credits:3,semester:"113-2",time:"週四 09:00-12:00",room:"理201",capacity:80,desc:"已結算"}
+    ],
+    enrollments:[
+      {studentId:"s001",courseId:"C001"},{studentId:"s001",courseId:"C003"},{studentId:"s001",courseId:"C005"},
+      {studentId:"s002",courseId:"C001"},{studentId:"s002",courseId:"C002"},{studentId:"s002",courseId:"C004"},
+      {studentId:"s003",courseId:"C002"},{studentId:"s003",courseId:"C003"},{studentId:"s003",courseId:"C006"},
+      {studentId:"s004",courseId:"C001"},{studentId:"s004",courseId:"C004"},{studentId:"s004",courseId:"C007"},
+      {studentId:"s005",courseId:"C002"},{studentId:"s005",courseId:"C005"},{studentId:"s005",courseId:"C006"},
+      {studentId:"s006",courseId:"C003"},{studentId:"s006",courseId:"C004"},{studentId:"s006",courseId:"C008"},
+      {studentId:"s007",courseId:"C001"},{studentId:"s007",courseId:"C006"},{studentId:"s007",courseId:"C007"},
+      {studentId:"s008",courseId:"C004"},{studentId:"s008",courseId:"C005"},{studentId:"s008",courseId:"C008"},
+      {studentId:"s009",courseId:"C002"},{studentId:"s009",courseId:"C007"},{studentId:"s009",courseId:"C008"},
+      {studentId:"s010",courseId:"C003"},{studentId:"s010",courseId:"C005"},{studentId:"s010",courseId:"C006"},
+      {studentId:"s001",courseId:"H001"},{studentId:"s001",courseId:"H002"},{studentId:"s001",courseId:"H003"},{studentId:"s001",courseId:"H004"},
+      {studentId:"s002",courseId:"H001"},{studentId:"s002",courseId:"H002"},{studentId:"s002",courseId:"H003"},{studentId:"s002",courseId:"H004"},
+      {studentId:"s003",courseId:"H001"},{studentId:"s003",courseId:"H002"},{studentId:"s003",courseId:"H003"},{studentId:"s003",courseId:"H004"},
+      {studentId:"s004",courseId:"H001"},{studentId:"s004",courseId:"H002"},{studentId:"s004",courseId:"H003"},{studentId:"s004",courseId:"H004"},
+      {studentId:"s005",courseId:"H001"},{studentId:"s005",courseId:"H002"},{studentId:"s005",courseId:"H003"},{studentId:"s005",courseId:"H004"},
+      {studentId:"s006",courseId:"H001"},{studentId:"s006",courseId:"H002"},
+      {studentId:"s007",courseId:"H001"},{studentId:"s007",courseId:"H002"},
+      {studentId:"s008",courseId:"H001"},{studentId:"s008",courseId:"H002"},
+      {studentId:"s009",courseId:"H001"},{studentId:"s009",courseId:"H002"},
+      {studentId:"s010",courseId:"H001"},{studentId:"s010",courseId:"H002"}
+    ],
+    grades:[
+      G("s001","H001",88),G("s001","H002",76),G("s001","H003",92),G("s001","H004",81),
+      G("s002","H001",95),G("s002","H002",89),G("s002","H003",90),G("s002","H004",84),
+      G("s003","H001",72),G("s003","H002",68),G("s003","H003",75),G("s003","H004",70),
+      G("s004","H001",83),G("s004","H002",79),G("s004","H003",86),G("s004","H004",82),
+      G("s005","H001",65),G("s005","H002",71),G("s005","H003",69),G("s005","H004",74),
+      G("s006","H001",91),G("s006","H002",87),
+      G("s007","H001",78),G("s007","H002",82),
+      G("s008","H001",86),G("s008","H002",90),
+      G("s009","H001",73),G("s009","H002",77),
+      G("s010","H001",89),G("s010","H002",84),
+      G("s001","C001",85),G("s002","C001",90),G("s004","C001",78),G("s007","C001",88)
+    ],
+    attendance:[
+      {id:"A1",studentId:"s001",courseId:"C001",date:"2026-09-01",status:"出席",note:""},
+      {id:"A2",studentId:"s001",courseId:"C001",date:"2026-09-08",status:"遲到",note:"交通延誤"},
+      {id:"A3",studentId:"s001",courseId:"C003",date:"2026-09-03",status:"出席",note:""},
+      {id:"A4",studentId:"s002",courseId:"C001",date:"2026-09-01",status:"出席",note:""},
+      {id:"A5",studentId:"s002",courseId:"C001",date:"2026-09-08",status:"缺席",note:"未請假"},
+      {id:"A6",studentId:"s002",courseId:"C002",date:"2026-09-02",status:"請假",note:"病假"},
+      {id:"A7",studentId:"s004",courseId:"C001",date:"2026-09-01",status:"出席",note:""},
+      {id:"A8",studentId:"s004",courseId:"C001",date:"2026-09-08",status:"出席",note:""},
+      {id:"A9",studentId:"s005",courseId:"C002",date:"2026-09-02",status:"遲到",note:""},
+      {id:"A10",studentId:"s006",courseId:"C004",date:"2026-09-04",status:"出席",note:""},
+      {id:"A11",studentId:"s003",courseId:"C006",date:"2026-09-02",status:"出席",note:""},
+      {id:"A12",studentId:"s007",courseId:"C007",date:"2026-09-04",status:"請假",note:"事假"},
+      {id:"A13",studentId:"s008",courseId:"C008",date:"2026-09-05",status:"出席",note:""},
+      {id:"A14",studentId:"s010",courseId:"C003",date:"2026-09-03",status:"缺席",note:"未請假"},
+      {id:"A15",studentId:"s005",courseId:"C002",date:"2026-09-09",status:"請假",note:"請假申請通過"},
+      {id:"A16",studentId:"s005",courseId:"C005",date:"2026-09-09",status:"請假",note:"請假申請通過"},
+      {id:"A17",studentId:"s005",courseId:"C006",date:"2026-09-09",status:"請假",note:"請假申請通過"}
+    ],
+    leaves:[
+      {id:"L1",studentId:"s002",date:"2026-09-15",reason:"感冒就醫",status:"待審核",applyDate:"2026-09-12",reviewer:null,reviewNote:""},
+      {id:"L2",studentId:"s005",date:"2026-09-09",reason:"家中急事",status:"通過",applyDate:"2026-09-08",reviewer:"李雅婷",reviewNote:"准假"}
+    ],
+    rewards:[
+      {id:"R1",studentId:"s002",type:"嘉獎",date:"2026-09-05",reason:"服務學習表現優良",recorder:"陳志明"},
+      {id:"R2",studentId:"s001",type:"小功",date:"2026-09-06",reason:"程式競賽獲獎",recorder:"陳志明"},
+      {id:"R3",studentId:"s005",type:"警告",date:"2026-09-07",reason:"上課遲到多次",recorder:"李雅婷"},
+      {id:"R4",studentId:"s008",type:"嘉獎",date:"2026-09-08",reason:"英文演講比賽佳作",recorder:"黃美玲"}
+    ],
+    announcements:[
+      {id:"N1",title:"【重要】114-1 學期加退選時程公告",content:"加退選期間：9/8 – 9/19，請同學至選課中心完成加退選，逾期不受理。",authorId:"admin",authorName:"張主任",date:"2026-09-05",pinned:true},
+      {id:"N2",title:"程式設計(一) 第一週上課提醒",content:"請修課同學攜帶筆電，第一週介紹課程大綱與評分方式。",authorId:"t001",authorName:"陳志明",date:"2026-09-01",pinned:false},
+      {id:"N3",title:"期中考週圖書館延長開放",content:"10/20–10/26 圖書館開放至 23:00，歡迎多加利用。",authorId:"admin",authorName:"張主任",date:"2026-09-10",pinned:false},
+      {id:"N4",title:"英文會話課程分組名單公布",content:"修習英文會話的同學請至文306外公布欄確認分組名單。",authorId:"t003",authorName:"黃美玲",date:"2026-09-11",pinned:false}
+    ]
+  };
+}
+async function saveDB(){ try{ await fetch(`${API_BASE}/api/db`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(DB)}); }catch(e){ console.error("saveDB failed",e); } }
+async function loadDB(){ try{ const r=await fetch(`${API_BASE}/api/db`); if(r.ok){ DB=await r.json(); return; } }catch(e){} DB=seedDB(); await saveDB(); }
+async function resetDB(){ if(!confirm("確定還原展示資料？")) return; DB=seedDB(); await saveDB(); render(); alert("已還原"); }
+
+/* ================= 工具 ================= */
+const $ = id => document.getElementById(id);
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const userById = id => DB.users.find(u=>u.id===id);
+const courseById = id => DB.courses.find(c=>c.id===id);
+const enrolledCount = cid => DB.enrollments.filter(e=>e.courseId===cid).length;
+const myEnrollments = sid => DB.enrollments.filter(e=>e.studentId===sid);
+const gradeOf = (sid,cid) => DB.grades.find(g=>g.studentId===sid&&g.courseId===cid);
+/* 成績權重: 平時30% 期中30% 期末40% */
+const GRADE_W={regular:0.3,midterm:0.3,final:0.4};
+function calcSem(r,m,f){ if(r==null||m==null||f==null||r===""||m===""||f==="") return null;
+  r=+r;m=+m;f=+f; if([r,m,f].some(v=>isNaN(v)||v<0||v>100)) return null; return Math.round(r*0.3+m*0.3+f*0.4); }
+function scoreCell(v){ return v==null?'<span class="pill p-gray">—</span>':v; }
+/* 課程排名(依學期成績) */
+function rankOf(sid,cid){
+  const rows=DB.enrollments.filter(e=>e.courseId===cid)
+    .map(e=>({sid:e.studentId,s:(gradeOf(e.studentId,cid)||{}).score}))
+    .filter(x=>x.s!=null).sort((a,b)=>b.s-a.s);
+  const i=rows.findIndex(x=>x.sid===sid);
+  return i<0?null:{rank:i+1,total:rows.length};
+}
+/* 操行: 基點85; 嘉獎+1 小功+2.5 大功+7.5 警告-1 小過-2.5 大過-7.5 */
+const CONDUCT_BASE=85;
+const CONDUCT_PT={"嘉獎":1,"小功":2.5,"大功":7.5,"警告":-1,"小過":-2.5,"大過":-7.5};
+const REWARD_TYPES=["嘉獎","小功","大功","警告","小過","大過"];
+function conductOf(sid){
+  const list=DB.rewards.filter(r=>r.studentId===sid).sort((a,b)=>b.date.localeCompare(a.date));
+  let s=CONDUCT_BASE; list.forEach(r=>{ s+=CONDUCT_PT[r.type]||0; });
+  s=Math.max(0,Math.min(100,Math.round(s*10)/10));
+  return {score:s,list};
+}
+function leavePill(st){ return st==="通過"?'<span class="pill p-green">通過</span>':st==="退回"?'<span class="pill p-red">退回</span>':'<span class="pill p-amber">待審核</span>'; }
+function myAdvisees(tid){ return DB.users.filter(u=>u.role==="student"&&u.advisorId===tid); }
+function gpa(list){ // list of scores
+  if(!list.length) return "—";
+  const pts = list.map(s=> s>=90?4.3: s>=85?4.0: s>=80?3.7: s>=77?3.3: s>=73?3.0: s>=70?2.7: s>=67?2.3: s>=63?2.0: s>=60?1.7:0);
+  return (pts.reduce((a,b)=>a+b,0)/pts.length).toFixed(2);
+}
+function gradePill(s){
+  if(s==null) return `<span class="pill p-gray">未公布</span>`;
+  const c = s>=90?"p-green":s>=80?"p-blue":s>=60?"p-amber":"p-red";
+  return `<span class="pill ${c}">${s} 分</span>`;
+}
+function statusPill(s){
+  const m={"出席":"p-green","遲到":"p-amber","缺席":"p-red","請假":"p-blue"};
+  return `<span class="pill ${m[s]||"p-gray"}">${esc(s)}</span>`;
+}
+function openModal(html){ $("modalBox").innerHTML=html; $("modalBg").style.display="flex"; }
+function closeModal(){ $("modalBg").style.display="none"; }
+$("modalBg").addEventListener("click",e=>{ if(e.target.id==="modalBg") closeModal(); });
+
+/* ================= 登入 ================= */
+let loginRole="student";
+document.querySelectorAll("#roleTabs button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("#roleTabs button").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active"); loginRole=b.dataset.role; renderDemo();
+});
+function renderDemo(){
+  const d={
+    student:[["s001","王小明"],["s002","林小美"],["s003","陳大仁"],["s004","張小華"],["s005","劉志偉"],["s006","蔡欣怡"],["s007","謝明哲"],["s008","韓佳玲"],["s009","賴俊宏"],["s010","許雅筑"]],
+    teacher:[["t001","陳志明"],["t002","李雅婷"],["t003","黃美玲"],["t004","林建國"]],
+    admin:[["admin","張主任"]]
+  };
+  $("demoBox").innerHTML="⚡ 快速登入："+d[loginRole].map(([a,n])=>`<button class="btn btn-sm btn-g" onclick="quick('${a}')">${n}(${a})</button>`).join("");
+}
+function quick(acc){ $("loginAcc").value=acc; $("loginPw").value = acc==="admin"?"admin123":"123456"; doLogin(); }
+async function doLogin(){
+  const acc=$("loginAcc").value.trim(), pw=$("loginPw").value;
+  try{
+    const r=await fetch(`${API_BASE}/api/login`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({account:acc,password:pw,role:loginRole})});
+    const u=await r.json();
+    if(!r.ok) return alert(u.error||"帳號或密碼錯誤");
+    // 以 DB 快取補上 password（後續 saveDB 需完整物件），session 指向 DB 內物件
+    const full=DB.users.find(x=>x.account===acc);
+    session=full||u; enterApp(); return;
+  }catch(e){}
+  const u=(DB||{users:[]}).users.find(x=>x.account===acc&&x.password===pw);
+  if(!u) return alert("帳號或密碼錯誤（後端無回應）");
+  if(u.role!==loginRole) return alert(`此帳號身分為「${roleName(u.role)}」，請切換到${roleName(u.role)}頁籤登入`);
+  session=u; enterApp();
+}
+function roleName(r){ return r==="student"?"學生":r==="teacher"?"老師":"管理員"; }
+function logout(){ session=null; $("app").style.display="none"; $("loginPage").style.display="flex"; }
+function enterApp(){
+  $("loginPage").style.display="none"; $("app").style.display="block";
+  $("roleBadge").textContent=roleName(session.role);
+  $("userInfo").textContent=`${session.name}（${session.account}・${esc(session.dept||"")}）您好`;
+  buildNav();
+  if(session.role==="student") curView="s-ann";
+  else if(session.role==="teacher") curView="t-courses";
+  else curView="a-users";
+  render();
+}
+function buildNav(){
+  let items=[];
+  if(session.role==="student") items=[["s-ann","📢 公告"],["s-course","🛒 選課中心"],["s-tt","🗓️ 課表"],["s-grade","📝 成績查詢"],["s-hist","📚 歷年成績"],["s-att","✅ 出缺席紀錄"],["s-leave","📝 請假申請"],["s-conduct","🏅 獎懲與操行"],["s-profile","👤 基本資料"]];
+  if(session.role==="teacher") items=[["t-courses","📖 授課課程"],["t-leave","📝 請假審核"],["t-reward","🏅 獎懲管理"],["t-ann","📢 公告"]];
+  if(session.role==="admin") items=[["a-users","👥 帳號管理"],["a-courses","📖 所有課程總覽"],["a-leave","📝 請假管理"],["a-reward","🏅 獎懲管理"],["a-ann","📢 公告管理"]];
+  $("sideNav").innerHTML=items.map(([v,t])=>`<button class="nav ${curView===v?"active":""}" onclick="go('${v}')">${t}</button>`).join("");
+}
+function go(v){ curView=v; buildNav(); render(); }
+
+/* ================= 路由 ================= */
+function render(){
+  if(!session) return;
+  const M=$("main");
+  const V=curView;
+  if(V==="s-ann") M.innerHTML=vAnnounce(false);
+  else if(V==="s-course") M.innerHTML=vCourseCenter();
+  else if(V==="s-tt") M.innerHTML=vTimetable();
+  else if(V==="s-grade") M.innerHTML=vGrade(false);
+  else if(V==="s-hist") M.innerHTML=vGrade(true);
+  else if(V==="s-att") M.innerHTML=vStudentAtt();
+  else if(V==="s-leave") M.innerHTML=vLeaveStudent();
+  else if(V==="s-conduct") M.innerHTML=vConductStudent();
+  else if(V==="s-profile") M.innerHTML=vProfile();
+  else if(V==="t-courses") M.innerHTML=vTeacherCourses();
+  else if(V==="t-leave") M.innerHTML=vLeaveReview(false);
+  else if(V==="t-reward") M.innerHTML=vRewardManage(false);
+  else if(V==="t-ann") M.innerHTML=vAnnounce(true);
+  else if(V==="a-users") M.innerHTML=vAdminUsers();
+  else if(V==="a-courses") M.innerHTML=vAdminCourses();
+  else if(V==="a-leave") M.innerHTML=vLeaveReview(true);
+  else if(V==="a-reward") M.innerHTML=vRewardManage(true);
+  else if(V==="a-ann") M.innerHTML=vAnnounce(true);
+  // innerHTML 中的表格需立即填入資料
+  if($("annList")) renderAnnList();
+  if($("crows")) renderCourseRows();
+  if($("arows")) renderAttRows();
+  if($("urows")) renderUserRows();
+  if($("krows")) renderAdminCourseRows();
+}
+
+/* ---------- 公告(共用) ---------- */
+function vAnnounce(canPost){
+  const list=[...DB.announcements].sort((a,b)=>(b.pinned-a.pinned)||(b.date<a.date?-1:1));
+  return `<div class="card"><h2>📢 公告</h2><div class="sub">共 ${list.length} 則${canPost?"・老師 / 管理員可發布":""}</div>
+  ${canPost?`<div class="toolbar"><button class="btn btn-p btn-sm" style="width:auto;margin:0" onclick="annForm()">＋ 發布公告</button></div>`:""}
+  <div class="toolbar"><input id="q" placeholder="搜尋標題或內容..." oninput="renderAnnList()"></div>
+  <div id="annList"></div></div>`;
+}
+function annListHTML(kw){
+  let list=[...DB.announcements].sort((a,b)=>(b.pinned-a.pinned)||(b.date<a.date?-1:1));
+  if(kw) list=list.filter(a=>(a.title+a.content).includes(kw));
+  const canEdit = session.role!=="student";
+  return list.map(a=>`<div class="ann">
+    <h4>${a.pinned?"📌 ":""}${esc(a.title)}</h4>
+    <div class="meta">${esc(a.date)} ・ ${esc(a.authorName)} 發布</div>
+    <div style="white-space:pre-wrap;font-size:14.5px">${esc(a.content)}</div>
+    ${canEdit?`<div style="margin-top:8px"><button class="btn btn-sm btn-g" onclick="annForm('${a.id}')">編輯</button>
+    <button class="btn btn-sm btn-danger" onclick="annDel('${a.id}')">刪除</button></div>`:""}
+  </div>`).join("")||"<p class='sub'>無符合公告</p>";
+}
+function renderAnnList(){ const el=$("annList"); if(el) el.innerHTML=annListHTML(($("q")||{}).value?.trim()||""); }
+function annForm(id){
+  const a=id?DB.announcements.find(x=>x.id===id):{title:"",content:"",pinned:false};
+  openModal(`<h3>${id?"編輯":"發布"}公告</h3>
+  <label>標題</label><input id="f_t" value="${esc(a.title)}">
+  <label>內容</label><textarea id="f_c">${esc(a.content)}</textarea>
+  <label><input type="checkbox" id="f_p" style="width:auto" ${a.pinned?"checked":""}> 置頂</label><br><br>
+  <button class="btn btn-p" onclick="annSave('${id||""}')">儲存</button>
+  <button class="btn" onclick="closeModal()">取消</button>`);
+}
+function annSave(id){
+  const t=$("f_t").value.trim(), c=$("f_c").value.trim(), p=$("f_p").checked;
+  if(!t||!c) return alert("請填寫標題與內容");
+  const today=new Date().toISOString().slice(0,10);
+  if(id){ const a=DB.announcements.find(x=>x.id===id); Object.assign(a,{title:t,content:c,pinned:p}); }
+  else DB.announcements.push({id:"N"+Date.now(),title:t,content:c,authorId:session.id,authorName:session.name,date:today,pinned:p});
+  saveDB(); closeModal(); render();
+}
+function annDel(id){ if(confirm("確定刪除？")){ DB.announcements=DB.announcements.filter(a=>a.id!==id); saveDB(); render(); } }
+
+/* ---------- 學生：選課中心 ---------- */
+function vCourseCenter(){
+  const mine=new Set(myEnrollments(session.id).map(e=>e.courseId));
+  const avail=DB.courses.filter(c=>c.semester===CURR_SEM);
+  const myCred=avail.filter(c=>mine.has(c.id)).reduce((a,c)=>a+c.credits,0);
+  return `<div class="card"><h2>🛒 選課中心（含加選 / 退選）</h2>
+  <div class="sub">${CURR_SEM} 學期 ・ 已選 ${mine.size} 門 ・ 共 ${myCred} 學分（上限 25 學分）</div>
+  <div class="toolbar"><input id="cq" placeholder="搜尋課程名稱 / 代碼 / 老師..." oninput="renderCourseRows()">
+  <select id="cf" onchange="renderCourseRows()"><option value="">全部</option><option value="mine">我已選的</option><option value="open">尚有名額</option></select></div>
+  <div style="overflow:auto"><table><thead><tr><th>代碼</th><th>課程</th><th>老師</th><th>學分</th><th>時間</th><th>教室</th><th>名額</th><th>操作</th></tr></thead>
+  <tbody id="crows"></tbody></table></div></div>`;
+}
+function renderCourseRows(){
+  const kw=(($("cq")||{}).value||"").trim(), f=($("cf")||{}).value||"";
+  const mine=new Set(myEnrollments(session.id).map(e=>e.courseId));
+  let list=DB.courses.filter(c=>c.semester===CURR_SEM);
+  if(kw) list=list.filter(c=>(c.code+c.name+(userById(c.teacherId)||{}).name).includes(kw));
+  if(f==="mine") list=list.filter(c=>mine.has(c.id));
+  if(f==="open") list=list.filter(c=>enrolledCount(c.id)<c.capacity);
+  const el=$("crows"); if(!el) return;
+  el.innerHTML=list.map(c=>{
+    const t=userById(c.teacherId); const n=enrolledCount(c.id); const full=n>=c.capacity;
+    const has=mine.has(c.id);
+    const btn=has?`<button class="btn btn-sm btn-danger" onclick="dropCourse('${c.id}')">退選</button>`
+      :full?`<span class="pill p-red">已滿</span>`:`<button class="btn btn-sm btn-ok" onclick="addCourse('${c.id}')">加選</button>`;
+    return `<tr><td>${esc(c.code)}</td><td><b>${esc(c.name)}</b><br><span style="font-size:12px;color:#64748b">${esc(c.desc||"")}</span></td>
+    <td>${esc(t?.name||"")}</td><td>${c.credits}</td><td>${esc(c.time)}</td><td>${esc(c.room)}</td>
+    <td>${n}/${c.capacity}</td><td>${btn}</td></tr>`;
+  }).join("")||`<tr><td colspan="8">無符合課程</td></tr>`;
+}
+function addCourse(cid){
+  const c=courseById(cid);
+  if(myEnrollments(session.id).some(e=>e.courseId===cid)) return alert("已選過此課程");
+  if(enrolledCount(cid)>=c.capacity) return alert("名額已滿");
+  const cred=DB.courses.filter(x=>x.semester===CURR_SEM&&myEnrollments(session.id).some(e=>e.courseId===x.id)).reduce((a,x)=>a+x.credits,0);
+  if(cred+c.credits>25) return alert("超過學分上限 25 學分");
+  const mine=DB.courses.filter(x=>myEnrollments(session.id).some(e=>e.courseId===x.id)&&x.semester===CURR_SEM);
+  if(mine.some(m=>m.time===c.time)) if(!confirm(`與「${mine.find(m=>m.time===c.time).name}」同時間，仍要加選？`)) return;
+  DB.enrollments.push({studentId:session.id,courseId:cid}); saveDB(); render(); alert(`已加選 ${c.name}`);
+}
+function dropCourse(cid){
+  const c=courseById(cid);
+  if(!confirm(`確定退選「${c.name}」？成績與出缺席紀錄將保留但不再列入本學期課表。`)) return;
+  DB.enrollments=DB.enrollments.filter(e=>!(e.studentId===session.id&&e.courseId===cid));
+  saveDB(); render();
+}
+
+/* ---------- 學生：課表 ---------- */
+const WEEK=["週一","週二","週三","週四","週五"];
+function parseTime(t){ const m=String(t).match(/(週[一二三四五])\s*(\d+):(\d+)-(\d+):(\d+)/); if(!m) return null;
+  return {wd:m[1],s:+m[2]+(+m[3])/60,e:+m[4]+(+m[5])/60}; }
+function vTimetable(){
+  const mine=DB.courses.filter(c=>c.semester===CURR_SEM&&myEnrollments(session.id).some(e=>e.courseId===c.id));
+  const slots=["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00"];
+  let cells="";
+  slots.forEach(s=>{
+    const h=+s.split(":")[0];
+    cells+=`<div class="t">${s}</div>`;
+    WEEK.forEach(w=>{
+      const hit=mine.filter(c=>{const p=parseTime(c.time);return p&&p.wd===w&&h>=Math.floor(p.s)&&h<p.e;});
+      cells+=hit.length?`<div class="c"><b>${esc(hit[0].name)}</b>${esc(hit[0].room)}<br>${esc(hit[0].time)}</div>`:`<div class="empty"></div>`;
+    });
+  });
+  return `<div class="card"><h2>🗓️ 我的課表（${CURR_SEM}）</h2><div class="sub">共 ${mine.length} 門課</div>
+  <div class="tt"><div class="h">時間</div>${WEEK.map(w=>`<div class="h">${w}</div>`).join("")}${cells}</div></div>
+  <div class="card"><h2>修課明細</h2><table><tr><th>課程</th><th>老師</th><th>時間</th><th>教室</th><th>學分</th></tr>
+  ${mine.map(c=>`<tr><td>${esc(c.code)} ${esc(c.name)}</td><td>${esc(userById(c.teacherId)?.name)}</td><td>${esc(c.time)}</td><td>${esc(c.room)}</td><td>${c.credits}</td></tr>`).join("")}</table></div>`;
+}
+
+/* ---------- 學生：成績 ---------- */
+function vGrade(hist){
+  if(!hist){
+    const en=myEnrollments(session.id).map(e=>courseById(e.courseId)).filter(c=>c&&c.semester===CURR_SEM);
+    const scores=en.map(c=>gradeOf(session.id,c.id)?.score).filter(s=>s!=null);
+    return `<div class="card"><h2>📝 成績查詢（本學期 ${CURR_SEM}）</h2>
+    <div class="kpi"><div class="k">平均 <b>${scores.length?(scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1):"—"}</b></div>
+    <div class="k">GPA <b>${gpa(scores)}</b></div><div class="k">已公布 <b>${scores.length}/${en.length}</b></div></div>
+    <div class="sub">學期成績 = 平時×30% + 期中×30% + 期末×40%（四捨五入）・排名依學期成績計算</div>
+    <table><tr><th>課程</th><th>平時(30%)</th><th>期中(30%)</th><th>期末(40%)</th><th>學期成績</th><th>排名</th></tr>
+    ${en.map(c=>{const g=gradeOf(session.id,c.id);const r=rankOf(session.id,c.id);
+      return `<tr><td>${esc(c.code)} ${esc(c.name)}<br><span style="font-size:12px;color:#64748b">${esc(userById(c.teacherId)?.name)}・${c.credits}學分</span></td>
+      <td>${scoreCell(g?.regular)}</td><td>${scoreCell(g?.midterm)}</td><td>${scoreCell(g?.final)}</td>
+      <td>${gradePill(g?.score)}</td><td>${r?`第 <b>${r.rank}</b> / ${r.total} 名`:'<span class="pill p-gray">未公布</span>'}</td></tr>`}).join("")||"<tr><td colspan=6>尚未選課</td></tr>"}</table></div>`;
+  }
+  // 歷年
+  const all=myEnrollments(session.id).map(e=>courseById(e.courseId)).filter(Boolean);
+  const sems=[...new Set(all.map(c=>c.semester))].sort();
+  const allScores=all.map(c=>gradeOf(session.id,c.id)?.score).filter(s=>s!=null);
+  return `<div class="card"><h2>📚 歷年成績查詢</h2>
+  <div class="kpi"><div class="k">累計修課 <b>${all.length}</b></div><div class="k">累計 GPA <b>${gpa(allScores)}</b></div>
+  <div class="k">累計學分 <b>${all.filter(c=>{const g=gradeOf(session.id,c.id);return g&&g.score>=60;}).reduce((a,c)=>a+c.credits,0)}</b></div></div>
+  ${sems.map(s=>{
+    const cs=all.filter(c=>c.semester===s);
+    const sc=cs.map(c=>gradeOf(session.id,c.id)?.score).filter(x=>x!=null);
+    return `<h3 style="margin:16px 0 4px">📅 ${esc(s)} 學期（GPA ${gpa(sc)}）</h3>
+    <table><tr><th>代碼</th><th>課程</th><th>學分</th><th>成績</th><th>結果</th></tr>
+    ${cs.map(c=>{const g=gradeOf(session.id,c.id);return `<tr><td>${esc(c.code)}</td><td>${esc(c.name)}</td><td>${c.credits}</td><td>${gradePill(g?.score)}${g&&g.regular!=null?`<br><span style="font-size:11.5px;color:#64748b">平${g.regular} 期${g.midterm} 末${g.final}</span>`:""}</td><td>${g==null?"—":g.score>=60?'<span class="pill p-green">通過</span>':'<span class="pill p-red">不及格</span>'}</td></tr>`}).join("")}</table>`;
+  }).join("")}</div>`;
+}
+
+/* ---------- 學生：出缺席 ---------- */
+function vStudentAtt(){
+  const recs=DB.attendance.filter(a=>a.studentId===session.id).sort((a,b)=>b.date.localeCompare(a.date));
+  const c=(s)=>recs.filter(r=>r.status===s).length;
+  return `<div class="card"><h2>✅ 出缺席紀錄</h2>
+  <div class="kpi"><div class="k">出席 <b>${c("出席")}</b></div><div class="k">遲到 <b>${c("遲到")}</b></div>
+  <div class="k">缺席 <b>${c("缺席")}</b></div><div class="k">請假 <b>${c("請假")}</b></div></div>
+  <div class="toolbar"><select id="af" onchange="renderAttRows()"><option value="">全部課程</option>
+  ${[...new Set(recs.map(r=>r.courseId))].map(cid=>`<option value="${cid}">${esc(courseById(cid)?.name||cid)}</option>`).join("")}</select></div>
+  <table><tr><th>日期</th><th>課程</th><th>狀態</th><th>備註</th></tr><tbody id="arows"></tbody></table></div>`;
+}
+function renderAttRows(){
+  const f=($("af")||{}).value||"";
+  let recs=DB.attendance.filter(a=>a.studentId===session.id).sort((a,b)=>b.date.localeCompare(a.date));
+  if(f) recs=recs.filter(r=>r.courseId===f);
+  $("arows").innerHTML=recs.map(r=>`<tr><td>${esc(r.date)}</td><td>${esc(courseById(r.courseId)?.name||"")}</td><td>${statusPill(r.status)}</td><td>${esc(r.note||"")}</td></tr>`).join("")||"<tr><td colspan=4>無紀錄</td></tr>";
+}
+
+/* ---------- 老師：授課課程 ---------- */
+function vTeacherCourses(){
+  const mine=DB.courses.filter(c=>c.teacherId===session.id);
+  if(!curTeacherCourse||!mine.some(c=>c.id===curTeacherCourse)) curTeacherCourse=mine[0]?.id||null;
+  const c=courseById(curTeacherCourse);
+  let detail="<div class='card'>尚未開設課程</div>";
+  if(c){
+    const studs=DB.enrollments.filter(e=>e.courseId===c.id).map(e=>userById(e.studentId)).filter(Boolean);
+    const tabs=`<div class="toolbar">
+      <button class="btn btn-sm ${teacherTab==="students"?"btn-p":"btn-g"}" style="${teacherTab==="students"?"width:auto":""}" onclick="setTTab('students')">修課學生(${studs.length})</button>
+      <button class="btn btn-sm ${teacherTab==="grades"?"btn-p":"btn-g"}" style="${teacherTab==="grades"?"width:auto":""}" onclick="setTTab('grades')">學生成績</button>
+      <button class="btn btn-sm ${teacherTab==="att"?"btn-p":"btn-g"}" style="${teacherTab==="att"?"width:auto":""}" onclick="setTTab('att')">學生出缺席</button></div>`;
+    let body="";
+    if(teacherTab==="students") body=`<table><tr><th>學號</th><th>姓名</th><th>系級</th><th>學期成績</th><th>缺席次數</th><th>資料</th></tr>
+      ${studs.map(s=>{const g=gradeOf(s.id,c.id);const ab=DB.attendance.filter(a=>a.studentId===s.id&&a.courseId===c.id&&a.status==="缺席").length;
+        return `<tr><td>${esc(s.account)}</td><td>${esc(s.name)}</td><td>${esc(s.dept)}</td><td>${gradePill(g?.score)}</td><td>${ab}</td><td><button class="btn btn-sm btn-g" onclick="viewStudent('${s.id}')">查看</button></td></tr>`}).join("")||"<tr><td colspan=6>尚無學生選修</td></tr>"}</table>`;
+    if(teacherTab==="grades") body=`<div class="sub">輸入平時 / 期中 / 期末（0–100），學期成績自動換算（30% / 30% / 40% 四捨五入）。三欄需一次填齊，全部留空則清除。</div>
+      <table><tr><th>學號</th><th>姓名</th><th>平時</th><th>期中</th><th>期末</th><th>學期成績</th><th>操作</th></tr>
+      ${studs.map(s=>{const g=(gradeOf(s.id,c.id)||{});return `<tr><td>${esc(s.account)}</td><td>${esc(s.name)}</td>
+        <td><input id="gr_${s.id}" type="number" min="0" max="100" value="${g.regular??""}" style="width:75px" oninput="previewSem('${s.id}')"></td>
+        <td><input id="gm_${s.id}" type="number" min="0" max="100" value="${g.midterm??""}" style="width:75px" oninput="previewSem('${s.id}')"></td>
+        <td><input id="gf_${s.id}" type="number" min="0" max="100" value="${g.final??""}" style="width:75px" oninput="previewSem('${s.id}')"></td>
+        <td id="gs_${s.id}">${g.score??"—"}</td>
+        <td><button class="btn btn-sm btn-ok" onclick="saveGrade('${c.id}','${s.id}')">儲存</button></td></tr>`}).join("")}</table>
+      <div class="toolbar"><button class="btn btn-sm btn-g" onclick="publishAll('${c.id}')">未填者一鍵帶入 80 分</button></div>`;
+    if(teacherTab==="att") body=teacherAttBody(c, studs);
+    detail=`<div class="card"><h2>📖 ${esc(c.code)} ${esc(c.name)}</h2>
+      <div class="sub">${esc(c.semester)} ・ ${esc(c.time)} ・ ${esc(c.room)} ・ ${c.credits} 學分 ・ ${studs.length}/${c.capacity} 人</div>${tabs}${body}</div>`;
+  }
+  return `<div class="card"><h2>👩‍🏫 授課課程</h2><div class="sub">點選課程查看學生、成績與出缺席</div>
+  <div class="toolbar">${mine.map(x=>`<button class="btn btn-sm ${x.id===curTeacherCourse?"btn-p":"btn-g"}" style="${x.id===curTeacherCourse?"width:auto":""}" onclick="pickCourse('${x.id}')">${esc(x.name)}</button>`).join("")||"無"}</div></div>${detail}`;
+}
+function pickCourse(id){ curTeacherCourse=id; teacherTab="students"; render(); }
+function setTTab(t){ teacherTab=t; render(); }
+function previewSem(sid){
+  const s=calcSem($("gr_"+sid).value,$("gm_"+sid).value,$("gf_"+sid).value);
+  $("gs_"+sid).textContent = s==null?"—":s+"（自動）";
+}
+function saveGrade(cid,sid){
+  const rv=$("gr_"+sid).value, mv=$("gm_"+sid).value, fv=$("gf_"+sid).value;
+  const hasAny = rv!==""||mv!==""||fv!=="";
+  const r=rv===""?null:+rv, m=mv===""?null:+mv, f=fv===""?null:+fv;
+  if([r,m,f].some(v=>v!=null&&(isNaN(v)||v<0||v>100))) return alert("分數需為 0–100，留空代表未公布");
+  if(hasAny&&(r==null||m==null||f==null)) return alert("平時、期中、期末需一次填齊才能換算學期成績（或全部留空清除）");
+  DB.grades=DB.grades.filter(g=>!(g.studentId===sid&&g.courseId===cid));
+  if(hasAny) DB.grades.push({studentId:sid,courseId:cid,regular:r,midterm:m,final:f,score:calcSem(r,m,f)});
+  saveDB(); render(); alert("已儲存");
+}
+function publishAll(cid){
+  DB.enrollments.filter(e=>e.courseId===cid).forEach(e=>{
+    if(!gradeOf(e.studentId,cid)) DB.grades.push({studentId:e.studentId,courseId:cid,regular:80,midterm:80,final:80,score:80});
+  }); saveDB(); render();
+}
+function teacherAttBody(c, studs){
+  const recs=DB.attendance.filter(a=>a.courseId===c.id).sort((a,b)=>b.date.localeCompare(a.date));
+  return `<div class="grid2"><div>
+    <h4>＋ 新增點名紀錄</h4>
+    <label>日期</label><input type="date" id="ad" value="${new Date().toISOString().slice(0,10)}">
+    ${studs.map(s=>`<div style="display:flex;gap:6px;align-items:center;margin:6px 0"><span style="flex:1">${esc(s.name)}(${esc(s.account)})</span>
+      <select id="a_${s.id}" style="width:110px"><option>出席</option><option>遲到</option><option>缺席</option><option>請假</option></select></div>`).join("")||"尚無學生"}
+    <label>備註</label><input id="an" placeholder="選填">
+    <button class="btn btn-p btn-sm" style="width:auto;margin-top:8px" onclick="saveAtt('${c.id}')">儲存點名</button></div>
+    <div><h4>歷史紀錄（${recs.length}）</h4>
+    <table><tr><th>日期</th><th>學生</th><th>狀態</th><th>操作</th></tr>
+    ${recs.slice(0,30).map(r=>{const s=userById(r.studentId);return `<tr><td>${esc(r.date)}</td><td>${esc(s?.name||"")}</td><td>${statusPill(r.status)}</td><td><button class="btn btn-sm btn-danger" onclick="delAtt('${r.id}')">刪</button></td></tr>`}).join("")||"<tr><td colspan=4>無</td></tr>"}</table></div></div>`;
+}
+function saveAtt(cid){
+  const d=$("ad").value||new Date().toISOString().slice(0,10); const note=$("an").value||"";
+  const studs=DB.enrollments.filter(e=>e.courseId===cid);
+  studs.forEach(e=>{ const st=($("a_"+e.studentId)||{}).value||"出席";
+    DB.attendance.push({id:"A"+Date.now()+e.studentId,studentId:e.studentId,courseId:cid,date:d,status:st,note}); });
+  saveDB(); render(); alert(`已儲存 ${studs.length} 筆點名`);
+}
+function delAtt(id){ if(confirm("刪除此筆？")){ DB.attendance=DB.attendance.filter(a=>a.id!==id); saveDB(); render(); } }
+
+/* ---------- 管理員：帳號 ---------- */
+function vAdminUsers(){
+  return `<div class="card"><h2>👥 帳號管理（新增 / 修改 / 刪除）</h2>
+  <div class="toolbar"><button class="btn btn-p btn-sm" style="width:auto;margin:0" onclick="userForm()">＋ 新增帳號</button>
+  <select id="ur" onchange="renderUserRows()"><option value="">全部身分</option><option value="student">學生</option><option value="teacher">老師</option><option value="admin">管理員</option></select>
+  <input id="uq" placeholder="搜尋帳號 / 姓名..." oninput="renderUserRows()"></div>
+  <div style="overflow:auto"><table><thead><tr><th>帳號</th><th>姓名</th><th>身分</th><th>系級/單位</th><th>Email</th><th>操作</th></tr></thead><tbody id="urows"></tbody></table></div></div>`;
+}
+function renderUserRows(){
+  const r=($("ur")||{}).value||"", q=(($("uq")||{}).value||"").trim();
+  let list=[...DB.users];
+  if(r) list=list.filter(u=>u.role===r);
+  if(q) list=list.filter(u=>(u.account+u.name).includes(q));
+  $("urows").innerHTML=list.map(u=>`<tr><td>${esc(u.account)}</td><td>${esc(u.name)}</td>
+  <td><span class="pill ${u.role==="admin"?"p-red":u.role==="teacher"?"p-blue":"p-green"}">${roleName(u.role)}</span></td>
+  <td>${esc(u.dept||"")}</td><td>${esc(u.email||"")}</td>
+  <td><button class="btn btn-sm btn-g" onclick="userForm('${u.id}')">修改</button>
+  <button class="btn btn-sm btn-danger" onclick="userDel('${u.id}')">刪除</button></td></tr>`).join("");
+}
+function userForm(id){
+  const u=id?userById(id):{account:"",password:"123456",role:"student",name:"",dept:"",email:"",phone:"",birthday:"",address:"",advisorId:""};
+  openModal(`<h3>${id?"修改":"新增"}帳號</h3>
+  <div class="row"><div><label>帳號</label><input id="u_acc" value="${esc(u.account)}" ${id?"disabled":""}></div>
+  <div><label>密碼</label><input id="u_pw" value="${esc(u.password)}"></div></div>
+  <div class="row"><div><label>姓名</label><input id="u_name" value="${esc(u.name)}"></div>
+  <div><label>身分</label><select id="u_role"><option value="student" ${u.role==="student"?"selected":""}>學生</option><option value="teacher" ${u.role==="teacher"?"selected":""}>老師</option><option value="admin" ${u.role==="admin"?"selected":""}>管理員</option></select></div></div>
+  <div class="row"><div><label>系級/單位</label><input id="u_dept" value="${esc(u.dept||"")}"></div>
+  <div><label>Email</label><input id="u_email" value="${esc(u.email||"")}"></div></div>
+  <div class="row"><div><label>電話</label><input id="u_phone" value="${esc(u.phone||"")}"></div>
+  <div><label>生日</label><input id="u_bd" type="date" value="${esc(u.birthday||"")}"></div></div>
+  <label>地址</label><input id="u_addr" value="${esc(u.address||"")}">
+  <label>導師（僅學生有效）</label><select id="u_adv"><option value="">未指派</option>${DB.users.filter(x=>x.role==="teacher").map(t=>`<option value="${t.id}" ${u.advisorId===t.id?"selected":""}>${esc(t.name)}</option>`).join("")}</select><br><br>
+  <button class="btn btn-p" onclick="userSave('${id||""}')">儲存</button> <button class="btn" onclick="closeModal()">取消</button>`);
+}
+function userSave(id){
+  const acc=$("u_acc").value.trim(),pw=$("u_pw").value,name=$("u_name").value.trim(),role=$("u_role").value,dept=$("u_dept").value.trim(),email=$("u_email").value.trim();
+  const phone=$("u_phone").value.trim(),birthday=$("u_bd").value,address=$("u_addr").value.trim(),adv=$("u_adv").value;
+  if(!acc||!name||!pw) return alert("帳號/姓名/密碼必填");
+  if(id){ const t=userById(id); Object.assign(t,{password:pw,name,role,dept,email,phone,birthday,address});
+    if(role==="student") t.advisorId=adv||null; else delete t.advisorId; }
+  else{ if(DB.users.some(u=>u.account===acc||u.id===acc)) return alert("帳號已存在");
+    DB.users.push({id:acc,account:acc,password:pw,role,name,dept,email,phone,birthday,address,...(role==="student"?{advisorId:adv||"t001"}:{})}); }
+  saveDB(); closeModal(); render();
+}
+function userDel(id){
+  if(id===session.id) return alert("不能刪除自己");
+  const u=userById(id);
+  if(!confirm(`確定刪除 ${u.name}(${u.account})？相關選課/成績/出缺席將一併清除。`)) return;
+  DB.users=DB.users.filter(x=>x.id!==id);
+  DB.enrollments=DB.enrollments.filter(e=>e.studentId!==id);
+  DB.grades=DB.grades.filter(g=>g.studentId!==id);
+  DB.attendance=DB.attendance.filter(a=>a.studentId!==id);
+  saveDB(); render();
+}
+
+/* ---------- 管理員：課程 ---------- */
+function vAdminCourses(){
+  return `<div class="card"><h2>📖 所有課程總覽</h2><div class="sub">共 ${DB.courses.length} 門</div>
+  <div class="toolbar"><button class="btn btn-p btn-sm" style="width:auto;margin:0" onclick="courseForm()">＋ 新增課程</button>
+  <input id="kq" placeholder="搜尋課程..." oninput="renderAdminCourseRows()"></div>
+  <div style="overflow:auto"><table><thead><tr><th>代碼</th><th>課程</th><th>授課老師</th><th>學期</th><th>時間/教室</th><th>學分</th><th>人數</th><th>操作</th></tr></thead><tbody id="krows"></tbody></table></div></div>`;
+}
+function renderAdminCourseRows(){
+  const q=(($("kq")||{}).value||"").trim();
+  let list=[...DB.courses];
+  if(q) list=list.filter(c=>(c.code+c.name).includes(q));
+  $("krows").innerHTML=list.map(c=>{const t=userById(c.teacherId);return `<tr><td>${esc(c.code)}</td><td><b>${esc(c.name)}</b></td>
+  <td>${esc(t?.name||c.teacherId)}</td><td>${esc(c.semester)}</td><td>${esc(c.time)}<br>${esc(c.room)}</td><td>${c.credits}</td>
+  <td>${enrolledCount(c.id)}/${c.capacity}</td>
+  <td><button class="btn btn-sm btn-g" onclick="courseForm('${c.id}')">修改</button>
+  <button class="btn btn-sm btn-g" onclick="viewRoster('${c.id}')">名單</button>
+  <button class="btn btn-sm btn-danger" onclick="courseDel('${c.id}')">刪除</button></td></tr>`}).join("");
+}
+function courseForm(id){
+  const c=id?courseById(id):{code:"",name:"",teacherId:"t001",credits:3,semester:CURR_SEM,time:"週一 09:00-12:00",room:"",capacity:60,desc:""};
+  const teachers=DB.users.filter(u=>u.role==="teacher");
+  openModal(`<h3>${id?"修改":"新增"}課程</h3>
+  <div class="row"><div><label>課程代碼</label><input id="c_code" value="${esc(c.code)}"></div><div><label>課程名稱</label><input id="c_name" value="${esc(c.name)}"></div></div>
+  <div class="row"><div><label>授課老師</label><select id="c_t">${teachers.map(t=>`<option value="${t.id}" ${c.teacherId===t.id?"selected":""}>${esc(t.name)}</option>`).join("")}</select></div>
+  <div><label>學期</label><input id="c_sem" value="${esc(c.semester)}"></div></div>
+  <div class="row"><div><label>時間(例: 週一 09:00-12:00)</label><input id="c_time" value="${esc(c.time)}"></div><div><label>教室</label><input id="c_room" value="${esc(c.room)}"></div></div>
+  <div class="row"><div><label>學分</label><input id="c_cr" type="number" value="${c.credits}"></div><div><label>名額</label><input id="c_cap" type="number" value="${c.capacity}"></div></div>
+  <label>簡介</label><input id="c_desc" value="${esc(c.desc||"")}"><br><br>
+  <button class="btn btn-p" onclick="courseSave('${id||""}')">儲存</button> <button class="btn" onclick="closeModal()">取消</button>`);
+}
+function courseSave(id){
+  const code=$("c_code").value.trim(),name=$("c_name").value.trim();
+  if(!code||!name) return alert("代碼與名稱必填");
+  const d={code,name,teacherId:$("c_t").value,semester:$("c_sem").value.trim()||CURR_SEM,time:$("c_time").value.trim(),room:$("c_room").value.trim(),credits:+$("c_cr").value||3,capacity:+$("c_cap").value||60,desc:$("c_desc").value.trim()};
+  if(id) Object.assign(courseById(id),d);
+  else DB.courses.push({id:"C"+Date.now(),...d});
+  saveDB(); closeModal(); render();
+}
+function courseDel(id){
+  const c=courseById(id);
+  if(!confirm(`確定刪除「${c.name}」？選課/成績/出缺席將一併清除。`)) return;
+  DB.courses=DB.courses.filter(x=>x.id!==id);
+  DB.enrollments=DB.enrollments.filter(e=>e.courseId!==id);
+  DB.grades=DB.grades.filter(g=>g.courseId!==id);
+  DB.attendance=DB.attendance.filter(a=>a.courseId!==id);
+  saveDB(); render();
+}
+function viewRoster(cid){
+  const c=courseById(cid);
+  const list=DB.enrollments.filter(e=>e.courseId===cid).map(e=>userById(e.studentId)).filter(Boolean);
+  openModal(`<h3>${esc(c.name)} 修課名單（${list.length}）</h3>
+  <table><tr><th>學號</th><th>姓名</th><th>成績</th></tr>
+  ${list.map(s=>`<tr><td>${esc(s.account)}</td><td>${esc(s.name)}</td><td>${gradeOf(s.id,cid)?.score??"—"}</td></tr>`).join("")||"<tr><td colspan=3>無</td></tr>"}</table><br>
+  <button class="btn" onclick="closeModal()">關閉</button>`);
+}
+
+/* ---------- 學生：基本資料 ---------- */
+function vProfile(){
+  const u=session, adv=u.advisorId?userById(u.advisorId):null;
+  return `<div class="card"><h2>👤 基本資料</h2><div class="sub">聯絡資料可自行修改；學號、姓名、系級、導師如需變更請洽教務處</div>
+  <table>
+  <tr><th style="width:130px">學號</th><td>${esc(u.account)}</td></tr>
+  <tr><th>姓名</th><td>${esc(u.name)}</td></tr>
+  <tr><th>系級</th><td>${esc(u.dept)}</td></tr>
+  <tr><th>導師</th><td>${adv?esc(adv.name)+"（"+esc(adv.dept)+"）":"未指派"}</td></tr>
+  <tr><th>Email</th><td>${esc(u.email||"—")}</td></tr>
+  <tr><th>電話</th><td>${esc(u.phone||"—")}</td></tr>
+  <tr><th>生日</th><td>${esc(u.birthday||"—")}</td></tr>
+  <tr><th>地址</th><td>${esc(u.address||"—")}</td></tr>
+  </table>
+  <div class="toolbar"><button class="btn btn-p btn-sm" style="width:auto;margin:8px 0 0" onclick="profileForm()">修改聯絡資料</button></div></div>`;
+}
+function profileForm(){
+  const u=session;
+  openModal(`<h3>修改聯絡資料</h3>
+  <label>Email</label><input id="p_email" value="${esc(u.email||"")}">
+  <label>電話</label><input id="p_phone" value="${esc(u.phone||"")}">
+  <label>生日</label><input id="p_bd" type="date" value="${esc(u.birthday||"")}">
+  <label>地址</label><input id="p_addr" value="${esc(u.address||"")}"><br><br>
+  <button class="btn btn-p" onclick="profileSave()">儲存</button> <button class="btn" onclick="closeModal()">取消</button>`);
+}
+function profileSave(){
+  Object.assign(session,{email:$("p_email").value.trim(),phone:$("p_phone").value.trim(),birthday:$("p_bd").value,address:$("p_addr").value.trim()});
+  saveDB(); closeModal(); render(); alert("已更新");
+}
+
+/* ---------- 學生：請假申請 ---------- */
+function vLeaveStudent(){
+  const mine=DB.leaves.filter(l=>l.studentId===session.id).sort((a,b)=>b.date.localeCompare(a.date));
+  return `<div class="card"><h2>📝 請假申請</h2>
+  <div class="sub">送出後由導師審核。審核通過時，當天所有已選課程會自動記為「請假」，老師端不需再操作。</div>
+  <div class="grid2"><div>
+    <h4 style="margin:0 0 4px">＋ 新增請假申請</h4>
+    <label>請假日期</label><input type="date" id="lv_d">
+    <label>事由</label><textarea id="lv_r" placeholder="例如：感冒就醫"></textarea>
+    <button class="btn btn-p btn-sm" style="width:auto;margin-top:8px" onclick="leaveApply()">送出申請</button></div>
+    <div><h4 style="margin:0 0 4px">我的申請（${mine.length}）</h4>
+    <table><tr><th>日期</th><th>事由</th><th>狀態</th><th>審核意見</th><th>操作</th></tr>
+    ${mine.map(l=>`<tr><td>${esc(l.date)}</td><td>${esc(l.reason)}</td><td>${leavePill(l.status)}</td>
+      <td>${l.reviewer?esc(l.reviewer+": "+(l.reviewNote||"")):"—"}</td>
+      <td>${l.status==="待審核"?`<button class="btn btn-sm btn-danger" onclick="leaveCancel('${l.id}')">撤回</button>`:"—"}</td></tr>`).join("")||"<tr><td colspan=5>尚無申請</td></tr>"}</table></div></div></div>`;
+}
+function leaveApply(){
+  const d=$("lv_d").value, r=$("lv_r").value.trim();
+  if(!d) return alert("請選擇請假日期");
+  if(!r) return alert("請填寫事由");
+  if(DB.leaves.some(l=>l.studentId===session.id&&l.date===d&&l.status!=="退回")) return alert("該日期已有申請紀錄");
+  DB.leaves.push({id:"L"+Date.now(),studentId:session.id,date:d,reason:r,status:"待審核",applyDate:new Date().toISOString().slice(0,10),reviewer:null,reviewNote:""});
+  saveDB(); render(); alert("已送出，請等待導師審核");
+}
+function leaveCancel(id){
+  if(!confirm("確定撤回此申請？")) return;
+  DB.leaves=DB.leaves.filter(l=>l.id!==id); saveDB(); render();
+}
+
+/* ---------- 學生：獎懲與操行 ---------- */
+function rewardPill(t){ const good=["嘉獎","小功","大功"].includes(t); return `<span class="pill ${good?"p-green":"p-red"}">${esc(t)}</span>`; }
+function vConductStudent(){
+  const {score,list}=conductOf(session.id);
+  const cnt=t=>list.filter(r=>r.type===t).length;
+  return `<div class="card"><h2>🏅 獎懲紀錄與操行成績</h2>
+  <div class="sub">操行 = ${CONDUCT_BASE}(基點) ＋ 嘉獎×1 ＋ 小功×2.5 ＋ 大功×7.5 － 警告×1 － 小過×2.5 － 大過×7.5（0–100分）</div>
+  <div class="kpi"><div class="k">操行成績 <b>${score}</b></div>
+  <div class="k">嘉獎 <b>${cnt("嘉獎")}</b></div><div class="k">小功 <b>${cnt("小功")}</b></div><div class="k">大功 <b>${cnt("大功")}</b></div>
+  <div class="k">警告 <b>${cnt("警告")}</b></div><div class="k">小過 <b>${cnt("小過")}</b></div><div class="k">大過 <b>${cnt("大過")}</b></div></div>
+  <table><tr><th>日期</th><th>獎懲</th><th>事由</th><th>登錄人</th></tr>
+  ${list.map(r=>`<tr><td>${esc(r.date)}</td><td>${rewardPill(r.type)}</td><td>${esc(r.reason)}</td><td>${esc(r.recorder||"")}</td></tr>`).join("")||"<tr><td colspan=4>尚無紀錄</td></tr>"}</table></div>`;
+}
+
+/* ---------- 老師/管理員：請假審核 ---------- */
+function vLeaveReview(isAdmin){
+  const list=(isAdmin?[...DB.leaves]:DB.leaves.filter(l=>{const s=userById(l.studentId);return s&&s.advisorId===session.id;}))
+    .sort((a,b)=>((a.status==="待審核"?0:1)-(b.status==="待審核"?0:1))||b.date.localeCompare(a.date));
+  const pend=list.filter(l=>l.status==="待審核").length;
+  return `<div class="card"><h2>📝 ${isAdmin?"請假管理（全部）":"請假審核（導生成員）"}</h2>
+  <div class="sub">待審核 ${pend} 件。通過後系統自動將該生當天所有課程記為「請假」。</div>
+  <table><tr><th>日期</th><th>學生</th><th>事由</th><th>申請日</th><th>狀態</th><th>審核</th></tr>
+  ${list.map(l=>{const s=userById(l.studentId);return `<tr><td>${esc(l.date)}</td><td>${esc(s?.name||"?")}(${esc(s?.account||"")})</td>
+    <td>${esc(l.reason)}</td><td>${esc(l.applyDate||"")}</td><td>${leavePill(l.status)}${l.reviewer?`<br><span style="font-size:12px;color:#64748b">${esc(l.reviewer)}: ${esc(l.reviewNote||"")}</span>`:""}</td>
+    <td>${l.status==="待審核"?`<button class="btn btn-sm btn-ok" onclick="reviewLeave('${l.id}',true)">通過</button> <button class="btn btn-sm btn-danger" onclick="reviewLeave('${l.id}',false)">退回</button>`:"—"}</td></tr>`}).join("")||"<tr><td colspan=6>無申請紀錄</td></tr>"}</table></div>`;
+}
+function reviewLeave(id,ok){
+  const l=DB.leaves.find(x=>x.id===id); if(!l||l.status!=="待審核") return;
+  let note;
+  if(ok){ note=prompt("審核意見（選填）：","准假"); if(note==null) return; }
+  else { note=prompt("退回原因（將顯示給學生）：",""); if(note==null) return; }
+  l.status=ok?"通過":"退回"; l.reviewer=session.name; l.reviewNote=note||"";
+  if(ok) autoLeaveAtt(l.studentId,l.date);
+  saveDB(); render(); alert(ok?"已通過，當天課程已自動記為請假":"已退回");
+}
+function autoLeaveAtt(sid,date){
+  const cur=new Set(DB.courses.filter(c=>c.semester===CURR_SEM).map(c=>c.id)); // 僅本學期課程
+  myEnrollments(sid).filter(e=>cur.has(e.courseId)).forEach(e=>{
+    if(!DB.attendance.some(a=>a.studentId===sid&&a.courseId===e.courseId&&a.date===date))
+      DB.attendance.push({id:"A"+Date.now()+e.courseId,studentId:sid,courseId:e.courseId,date,status:"請假",note:"請假申請通過"});
+  });
+}
+
+/* ---------- 老師/管理員：獎懲管理 ---------- */
+function vRewardManage(isAdmin){
+  let cands;
+  if(isAdmin) cands=DB.users.filter(u=>u.role==="student");
+  else{
+    const ids=new Set(myAdvisees(session.id).map(s=>s.id));
+    DB.courses.filter(c=>c.teacherId===session.id).forEach(c=>DB.enrollments.filter(e=>e.courseId===c.id).forEach(e=>ids.add(e.studentId)));
+    cands=[...ids].map(userById).filter(Boolean);
+  }
+  const list=(isAdmin?[...DB.rewards]:DB.rewards.filter(r=>cands.some(s=>s.id===r.studentId)))
+    .sort((a,b)=>b.date.localeCompare(a.date));
+  return `<div class="card"><h2>🏅 ${isAdmin?"獎懲管理（全部學生）":"獎懲管理（導生＋授課學生）"}</h2>
+  <div class="sub">登錄後即時影響操行成績：基點${CONDUCT_BASE}，嘉獎+1 / 小功+2.5 / 大功+7.5 / 警告−1 / 小過−2.5 / 大過−7.5</div>
+  <div class="grid2"><div>
+    <h4 style="margin:0 0 4px">＋ 新增獎懲</h4>
+    <label>學生</label><select id="rw_s">${cands.map(s=>`<option value="${s.id}">${esc(s.name)}(${esc(s.account)})・操行${conductOf(s.id).score}</option>`).join("")||"<option value=''>無</option>"}</select>
+    <label>類別</label><select id="rw_t">${REWARD_TYPES.map(t=>`<option>${t}</option>`).join("")}</select>
+    <label>日期</label><input type="date" id="rw_d" value="${new Date().toISOString().slice(0,10)}">
+    <label>事由</label><input id="rw_r" placeholder="例如：校內服務表現優良">
+    <button class="btn btn-p btn-sm" style="width:auto;margin-top:8px" onclick="rewardAdd()">登錄</button></div>
+    <div><h4 style="margin:0 0 4px">紀錄（${list.length}）</h4>
+    <table><tr><th>日期</th><th>學生</th><th>獎懲</th><th>事由</th><th>操作</th></tr>
+    ${list.slice(0,60).map(r=>{const s=userById(r.studentId);return `<tr><td>${esc(r.date)}</td><td>${esc(s?.name||"?")}</td>
+      <td>${rewardPill(r.type)}</td><td>${esc(r.reason)}<br><span style="font-size:12px;color:#64748b">${esc(r.recorder||"")}</span></td>
+      <td><button class="btn btn-sm btn-danger" onclick="rewardDel('${r.id}')">刪除</button></td></tr>`}).join("")||"<tr><td colspan=5>無</td></tr>"}</table></div></div></div>`;
+}
+function rewardAdd(){
+  const sid=$("rw_s").value, type=$("rw_t").value, d=$("rw_d").value||new Date().toISOString().slice(0,10), r=$("rw_r").value.trim();
+  if(!sid) return alert("無可登錄學生");
+  if(!r) return alert("請填寫事由");
+  DB.rewards.push({id:"R"+Date.now(),studentId:sid,type,date:d,reason:r,recorder:session.name});
+  saveDB(); render(); alert(`已登錄${type}，該生操行現為 ${conductOf(sid).score}`);
+}
+function rewardDel(id){ if(!confirm("確定刪除此筆獎懲？操行將重新計算。")) return; DB.rewards=DB.rewards.filter(r=>r.id!==id); saveDB(); render(); }
+
+/* ---------- 老師：查看學生完整資料 ---------- */
+function viewStudent(sid){
+  const s=userById(sid); if(!s) return;
+  const adv=s.advisorId?userById(s.advisorId):null;
+  const {score,list}=conductOf(sid);
+  const att=DB.attendance.filter(a=>a.studentId===sid);
+  const lv=DB.leaves.filter(l=>l.studentId===sid).sort((a,b)=>b.date.localeCompare(a.date));
+  const cst=st=>att.filter(a=>a.status===st).length;
+  openModal(`<h3>👤 ${esc(s.name)}（${esc(s.account)}）</h3>
+  <table><tr><th>系級</th><td>${esc(s.dept)}</td></tr>
+  <tr><th>導師</th><td>${adv?esc(adv.name):"未指派"}</td></tr>
+  <tr><th>Email</th><td>${esc(s.email||"—")}</td></tr><tr><th>電話</th><td>${esc(s.phone||"—")}</td></tr>
+  <tr><th>生日</th><td>${esc(s.birthday||"—")}</td></tr><tr><th>地址</th><td>${esc(s.address||"—")}</td></tr>
+  <tr><th>操行</th><td><b>${score}</b>（獎懲 ${list.length} 筆）</td></tr>
+  <tr><th>出缺席</th><td>出席${cst("出席")} 遲到${cst("遲到")} 缺席${cst("缺席")} 請假${cst("請假")}</td></tr></table>
+  <h4>獎懲紀錄</h4><table><tr><th>日期</th><th>獎懲</th><th>事由</th></tr>
+  ${list.map(r=>`<tr><td>${esc(r.date)}</td><td>${rewardPill(r.type)}</td><td>${esc(r.reason)}</td></tr>`).join("")||"<tr><td colspan=3>無</td></tr>"}</table>
+  <h4>請假紀錄</h4><table><tr><th>日期</th><th>事由</th><th>狀態</th></tr>
+  ${lv.map(l=>`<tr><td>${esc(l.date)}</td><td>${esc(l.reason)}</td><td>${leavePill(l.status)}</td></tr>`).join("")||"<tr><td colspan=3>無</td></tr>"}</table><br>
+  <button class="btn" onclick="closeModal()">關閉</button>`);
+}
+
+/* ================= 啟動 ================= */
+loadDB().then(()=>{ renderDemo(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Enter"&&$("loginPage").style.display!=="none") doLogin(); });
+</script>
+</body>
+</html>
