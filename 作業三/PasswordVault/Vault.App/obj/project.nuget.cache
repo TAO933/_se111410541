@@ -1,0 +1,51 @@
+{
+  "version": 2,
+  "dgSpecHash": "posBkskKRI8=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\taow8\\PasswordVault\\Vault.App\\Vault.App.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\taow8\\.nuget\\packages\\communitytoolkit.mvvm\\8.4.2\\communitytoolkit.mvvm.8.4.2.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\konscious.security.cryptography.argon2\\1.3.1\\konscious.security.cryptography.argon2.1.3.1.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\konscious.security.cryptography.blake2\\1.1.1\\konscious.security.cryptography.blake2.1.1.1.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\microsoft.data.sqlite\\10.0.0\\microsoft.data.sqlite.10.0.0.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\microsoft.data.sqlite.core\\10.0.0\\microsoft.data.sqlite.core.10.0.0.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\microsoft.web.webview2\\1.0.3719.77\\microsoft.web.webview2.1.0.3719.77.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\microsoft.windows.ai.machinelearning\\2.1.74\\microsoft.windows.ai.machinelearning.2.1.74.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\microsoft.windows.sdk.buildtools\\10.0.28000.2705\\microsoft.windows.sdk.buildtools.10.0.28000.2705.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\microsoft.windows.sdk.buildtools.msix\\1.7.251221100\\microsoft.windows.sdk.buildtools.msix.1.7.251221100.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\microsoft.windowsappsdk\\2.5.1\\microsoft.windowsappsdk.2.5.1.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\microsoft.windowsappsdk.ai\\2.5.5\\microsoft.windowsappsdk.ai.2.5.5.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\microsoft.windowsappsdk.base\\2.0.4\\microsoft.windowsappsdk.base.2.0.4.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\microsoft.windowsappsdk.dwrite\\2.1.0\\microsoft.windowsappsdk.dwrite.2.1.0.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\microsoft.windowsappsdk.foundation\\2.3.12\\microsoft.windowsappsdk.foundation.2.3.12.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\microsoft.windowsappsdk.interactiveexperiences\\2.1.9\\microsoft.windowsappsdk.interactiveexperiences.2.1.9.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\microsoft.windowsappsdk.ml\\2.1.94\\microsoft.windowsappsdk.ml.2.1.94.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\microsoft.windowsappsdk.runtime\\2.5.1\\microsoft.windowsappsdk.runtime.2.5.1.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\microsoft.windowsappsdk.search\\2.5.5\\microsoft.windowsappsdk.search.2.5.5.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\microsoft.windowsappsdk.widgets\\2.0.5\\microsoft.windowsappsdk.widgets.2.0.5.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\microsoft.windowsappsdk.winui\\2.3.9\\microsoft.windowsappsdk.winui.2.3.9.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\sqlitepclraw.bundle_e_sqlcipher\\2.1.11\\sqlitepclraw.bundle_e_sqlcipher.2.1.11.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\sqlitepclraw.bundle_e_sqlite3\\2.1.11\\sqlitepclraw.bundle_e_sqlite3.2.1.11.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\sqlitepclraw.core\\2.1.11\\sqlitepclraw.core.2.1.11.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\sqlitepclraw.lib.e_sqlcipher\\2.1.11\\sqlitepclraw.lib.e_sqlcipher.2.1.11.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\sqlitepclraw.lib.e_sqlite3\\2.1.11\\sqlitepclraw.lib.e_sqlite3.2.1.11.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\sqlitepclraw.provider.e_sqlcipher\\2.1.11\\sqlitepclraw.provider.e_sqlcipher.2.1.11.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\sqlitepclraw.provider.e_sqlite3\\2.1.11\\sqlitepclraw.provider.e_sqlite3.2.1.11.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\system.numerics.tensors\\9.0.0\\system.numerics.tensors.9.0.0.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\microsoft.windows.sdk.net.ref\\10.0.22621.57\\microsoft.windows.sdk.net.ref.10.0.22621.57.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "message": "套件 'SQLitePCLRaw.lib.e_sqlite3' 2.1.11 具有已知的 高 嚴重性弱點，https://github.com/advisories/GHSA-2m69-gcr7-jv3q。",
+      "projectPath": "C:\\Users\\taow8\\PasswordVault\\Vault.App\\Vault.App.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\taow8\\PasswordVault\\Vault.App\\Vault.App.csproj",
+      "libraryId": "SQLitePCLRaw.lib.e_sqlite3",
+      "targetGraphs": [
+        "net10.0-windows10.0.22621.0"
+      ]
+    }
+  ]
+}

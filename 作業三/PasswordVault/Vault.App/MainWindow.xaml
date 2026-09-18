@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Window
+    x:Class="Vault.App.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer Padding="24">
+        <StackPanel x:Name="RootPanel" MaxWidth="560" Spacing="12">
+            <TextBlock Text="PasswordVault" Style="{StaticResource TitleTextBlockStyle}" />
+
+            <StackPanel x:Name="LockedPanel" Spacing="8">
+                <TextBlock Text="輸入主密碼解鎖，或建立新的密碼庫。" TextWrapping="Wrap" />
+                <PasswordBox x:Name="MasterBox" PlaceholderText="主密碼 (至少 12 字元)" PasswordChanged="OnMasterPasswordChanged" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button Content="解鎖" Command="{Binding UnlockCommand}" Style="{StaticResource AccentButtonStyle}" />
+                    <Button Content="建立新密碼庫" Command="{Binding CreateCommand}" />
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel x:Name="VaultPanel" Spacing="8" Visibility="Collapsed">
+                <Button Content="鎖定" Command="{Binding LockCommand}" HorizontalAlignment="Left" />
+                <ListView ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}" DisplayMemberPath="Name" MinHeight="120" SelectionMode="Single" />
+                <TextBlock Text="新增項目" Style="{StaticResource SubtitleTextBlockStyle}" />
+                <TextBox Header="名稱" Text="{Binding NewName, Mode=TwoWay}" />
+                <TextBox Header="網址" Text="{Binding NewUrl, Mode=TwoWay}" />
+                <TextBox Header="帳號" Text="{Binding NewUsername, Mode=TwoWay}" />
+                <PasswordBox x:Name="NewPasswordBox" Header="密碼" PasswordChanged="OnNewPasswordChanged" />
+                <Button Content="儲存" Command="{Binding AddCommand}" Style="{StaticResource AccentButtonStyle}" HorizontalAlignment="Left" />
+
+                <TextBlock Text="桌面 Auto-Type (Ctrl+Shift+L)" Style="{StaticResource SubtitleTextBlockStyle}" />
+                <TextBlock Text="選一個項目 → 抓取遊戲視窗 → 綁定 → 切到遊戲按快捷鍵填入。" TextWrapping="Wrap" Opacity="0.7" />
+                <TextBox Header="視窗標題 Regex (例 (?i).*Elden Ring.* 或 (?i).*notepad.*)" Text="{Binding WindowRegex, Mode=TwoWay}" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button Content="綁定選取項目" Command="{Binding BindRegexCommand}" />
+                    <Button Content="3秒後抓取視窗" Command="{Binding CaptureWindowCommand}" />
+                    <Button Content="立即填入測試" Command="{Binding AutoTypeNowCommand}" />
+                </StackPanel>
+
+                <TextBlock Text="剪貼簿降級 (反作弊/打不進去時用 Ctrl+Shift+C)" Style="{StaticResource SubtitleTextBlockStyle}" />
+                <TextBlock Text="在遊戲按 Ctrl+Shift+C 只複製密碼，回遊戲 Ctrl+V。10 秒自動清除，期間複製別的東西就不會誤清。" TextWrapping="Wrap" Opacity="0.7" />
+                <Border Background="#FFF7ED" BorderBrush="#FDBA74" BorderThickness="1" CornerRadius="6" Padding="8">
+                    <TextBlock Text="{Binding ClipboardWarning}" TextWrapping="Wrap" Foreground="#9A3412" />
+                </Border>
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button Content="複製帳號" Command="{Binding CopyUsernameCommand}" />
+                    <Button Content="複製密碼 (10s清除)" Command="{Binding CopyPasswordCommand}" Style="{StaticResource AccentButtonStyle}" />
+                    <Button Content="立即清除" Command="{Binding ClearClipboardCommand}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="剪貼簿倒數：" Opacity="0.7" />
+                    <TextBlock Text="{Binding ClipboardCountdown}" Opacity="0.7" />
+                    <TextBlock Text="秒" Opacity="0.7" />
+                </StackPanel>
+            </StackPanel>
+
+            <TextBlock Text="{Binding Status}" TextWrapping="Wrap" />
+        </StackPanel>
+    </ScrollViewer>
+</Window>

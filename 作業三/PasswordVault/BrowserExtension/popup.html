@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body { width: 300px; margin: 0; padding: 12px; font: 13px system-ui, sans-serif; }
+      h1 { font-size: 14px; margin: 0 0 8px; }
+      #status { color: #555; margin-bottom: 8px; word-break: break-word; }
+      .row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-top: 1px solid #eee; }
+      .row .meta { flex: 1; min-width: 0; }
+      .row .name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .row .user { color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      button { cursor: pointer; }
+    </style>
+  </head>
+  <body>
+    <h1>PasswordVault</h1>
+    <div id="status">載入中…</div>
+    <div id="list"></div>
+    <script src="popup.js"></script>
+  </body>
+</html>

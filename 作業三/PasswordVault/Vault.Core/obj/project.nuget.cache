@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "dgSpecHash": "asobcezPNBU=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\taow8\\PasswordVault\\Vault.Core\\Vault.Core.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\taow8\\.nuget\\packages\\konscious.security.cryptography.argon2\\1.3.1\\konscious.security.cryptography.argon2.1.3.1.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\konscious.security.cryptography.blake2\\1.1.1\\konscious.security.cryptography.blake2.1.1.1.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\microsoft.data.sqlite\\10.0.0\\microsoft.data.sqlite.10.0.0.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\microsoft.data.sqlite.core\\10.0.0\\microsoft.data.sqlite.core.10.0.0.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\sqlitepclraw.bundle_e_sqlcipher\\2.1.11\\sqlitepclraw.bundle_e_sqlcipher.2.1.11.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\sqlitepclraw.bundle_e_sqlite3\\2.1.11\\sqlitepclraw.bundle_e_sqlite3.2.1.11.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\sqlitepclraw.core\\2.1.11\\sqlitepclraw.core.2.1.11.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\sqlitepclraw.lib.e_sqlcipher\\2.1.11\\sqlitepclraw.lib.e_sqlcipher.2.1.11.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\sqlitepclraw.lib.e_sqlite3\\2.1.11\\sqlitepclraw.lib.e_sqlite3.2.1.11.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\sqlitepclraw.provider.e_sqlcipher\\2.1.11\\sqlitepclraw.provider.e_sqlcipher.2.1.11.nupkg.sha512",
+    "C:\\Users\\taow8\\.nuget\\packages\\sqlitepclraw.provider.e_sqlite3\\2.1.11\\sqlitepclraw.provider.e_sqlite3.2.1.11.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "message": "套件 'SQLitePCLRaw.lib.e_sqlite3' 2.1.11 具有已知的 高 嚴重性弱點，https://github.com/advisories/GHSA-2m69-gcr7-jv3q。",
+      "projectPath": "C:\\Users\\taow8\\PasswordVault\\Vault.Core\\Vault.Core.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\taow8\\PasswordVault\\Vault.Core\\Vault.Core.csproj",
+      "libraryId": "SQLitePCLRaw.lib.e_sqlite3",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    }
+  ]
+}

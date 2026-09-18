@@ -1,0 +1,14 @@
+C:\Users\taow8\PasswordVault\Vault.NativeHost\obj\Debug\net10.0\Vault.NativeHost.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\taow8\PasswordVault\Vault.NativeHost\obj\Debug\net10.0\Vault.NativeHost.AssemblyInfoInputs.cache
+C:\Users\taow8\PasswordVault\Vault.NativeHost\obj\Debug\net10.0\Vault.NativeHost.AssemblyInfo.cs
+C:\Users\taow8\PasswordVault\Vault.NativeHost\obj\Debug\net10.0\Vault.NativeHost.csproj.CoreCompileInputs.cache
+C:\Users\taow8\PasswordVault\Vault.NativeHost\bin\Debug\net10.0\Vault.NativeHost.exe
+C:\Users\taow8\PasswordVault\Vault.NativeHost\bin\Debug\net10.0\Vault.NativeHost.deps.json
+C:\Users\taow8\PasswordVault\Vault.NativeHost\bin\Debug\net10.0\Vault.NativeHost.runtimeconfig.json
+C:\Users\taow8\PasswordVault\Vault.NativeHost\bin\Debug\net10.0\Vault.NativeHost.dll
+C:\Users\taow8\PasswordVault\Vault.NativeHost\bin\Debug\net10.0\Vault.NativeHost.pdb
+C:\Users\taow8\PasswordVault\Vault.NativeHost\obj\Debug\net10.0\Vault.NativeHost.dll
+C:\Users\taow8\PasswordVault\Vault.NativeHost\obj\Debug\net10.0\refint\Vault.NativeHost.dll
+C:\Users\taow8\PasswordVault\Vault.NativeHost\obj\Debug\net10.0\Vault.NativeHost.pdb
+C:\Users\taow8\PasswordVault\Vault.NativeHost\obj\Debug\net10.0\Vault.NativeHost.genruntimeconfig.cache
+C:\Users\taow8\PasswordVault\Vault.NativeHost\obj\Debug\net10.0\ref\Vault.NativeHost.dll
