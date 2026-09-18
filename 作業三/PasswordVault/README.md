@@ -33,13 +33,6 @@ WinUI 3 桌面密碼管理器：本地加密密碼庫 ＋ 瀏覽器自動填入 
 
 ## 架構
 
-```mermaid
-UI (WinUI3 MainWindow + MainViewModel) <-- in-process --> VaultService (Locker + VaultStore)
-                                                              ^
-Browser Extension (MV3) <-- NativeMessaging (stdio) --> Vault.NativeHost --NamedPipe--> PipeServer (同使用者 SID)
-Global Hotkey (Ctrl+Shift+L / Ctrl+Shift+C) --> HotkeyService --> AutoTypeService / ClipboardService
-```
-
 | 模組 | 位置 | 職責 |
 |---|---|---|
 | Vault.Core | `Vault.Core/` | 純邏輯：`Kdf`（Argon2id）、`Crypto`（AES-256-GCM）、`Locker`（記憶體金鑰＋自動鎖）、`VaultStore`（SQLCipher）、`AutoType`（序列解析＋標題配對） |
