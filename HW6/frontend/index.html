@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MicroDocker — 微服務展示系統</title>
+<style>
+  :root { --bg:#0f172a; --card:#1e293b; --accent:#38bdf8; --green:#22c55e; --red:#ef4444; --text:#e2e8f0; --muted:#94a3b8; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:"Microsoft JhengHei",system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+  header { background:linear-gradient(135deg,#0ea5e9,#6366f1); padding:2.5rem 1rem; text-align:center; }
+  header h1 { font-size:2.2rem; } header p { opacity:.9; margin-top:.5rem; }
+  header code { background:rgba(0,0,0,.3); padding:.2rem .6rem; border-radius:6px; }
+  main { max-width:1100px; margin:-1.5rem auto 3rem; padding:0 1rem; }
+  .arch { background:var(--card); border-radius:14px; padding:1.5rem; margin-bottom:1.5rem; border:1px solid #334155; }
+  .arch pre { background:#0b1220; padding:1rem; border-radius:8px; overflow-x:auto; color:#7dd3fc; font-size:.85rem; line-height:1.6; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1rem; margin-bottom:1.5rem; }
+  .card { background:var(--card); border:1px solid #334155; border-radius:14px; padding:1.2rem; }
+  .card h3 { display:flex; align-items:center; gap:.5rem; margin-bottom:.5rem; }
+  .dot { width:12px; height:12px; border-radius:50%; background:gray; display:inline-block; }
+  .dot.ok { background:var(--green); box-shadow:0 0 8px var(--green); }
+  .dot.bad { background:var(--red); box-shadow:0 0 8px var(--red); }
+  .card small { color:var(--muted); } .card pre { background:#0b1220; border-radius:8px; padding:.7rem; margin-top:.7rem; font-size:.75rem; overflow-x:auto; max-height:180px; overflow-y:auto; }
+  .card button { margin-top:.7rem; background:var(--accent); border:none; color:#04263b; font-weight:700; padding:.5rem 1rem; border-radius:8px; cursor:pointer; width:100%; }
+  .card button:hover { filter:brightness(1.1); }
+  .panel { background:var(--card); border:1px solid #334155; border-radius:14px; padding:1.5rem; }
+  .panel h2 { margin-bottom:1rem; }
+  .row { display:flex; gap:.5rem; margin-bottom:1rem; } input { flex:1; padding:.6rem; border-radius:8px; border:1px solid #475569; background:#0b1220; color:var(--text); }
+  .row button { background:#22c55e; border:none; padding:.6rem 1.2rem; border-radius:8px; font-weight:700; cursor:pointer; }
+  ul#msgs { list-style:none; display:flex; flex-direction:column; gap:.5rem; }
+  ul#msgs li { background:#0b1220; padding:.7rem; border-radius:8px; border:1px solid #334155; }
+  ul#msgs li b { color:var(--accent); }
+  footer { text-align:center; color:var(--muted); padding:2rem; font-size:.85rem; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🐳 MicroDocker 微服務展示系統</h1>
+  <p>Nginx 反向代理 + Node.js + Python + Rust + PostgreSQL —— 全部跑在 Docker 裡</p>
+  <p style="margin-top:.6rem"><code>http://localhost:8080</code> → nginx → 各微服務</p>
+</header>
+
+<main>
+  <div class="arch">
+    <h2>🏗 系統架構</h2>
+    <pre>
+Browser (:8080)
+     │
+     ▼
+┌─────────────┐     ┌──────────────┐
+│   nginx     │────▶│   frontend   │  (nginx:alpine 靜態頁, 就是本頁)
+│ reverse-proxy│     └──────────────┘
+│  :80        │────▶ /api/node/   → api-node:3001    (Node.js + Express + pg)
+│             │────▶ /api/python/ → api-python:5000  (Python + Flask + psycopg2)
+│             │────▶ /api/rust/   → api-rust:8000    (Rust + Axum)
+└─────────────┘           │            │
+                          └────▶ postgres:5432 (postgres:16-alpine + volume pgdata)
+    全部在同一個 bridge network「micronet」內，用 service name 當 DNS 互連
+    </pre>
+    <button id="refreshAll" style="margin-top:1rem;background:#38bdf8;border:none;padding:.6rem 1.4rem;border-radius:8px;font-weight:700;cursor:pointer">🔄 重新檢測所有服務</button>
+  </div>
+
+  <div class="grid">
+    <div class="card" id="card-node">
+      <h3><span class="dot" id="dot-node"></span> Node.js 服務</h3>
+      <small>Express · <code>/api/node/</code></small>
+      <pre id="out-node">尚未檢測…</pre>
+      <button onclick="check('node')">檢測 Node</button>
+    </div>
+    <div class="card" id="card-python">
+      <h3><span class="dot" id="dot-python"></span> Python 服務</h3>
+      <small>Flask · <code>/api/python/</code></small>
+      <pre id="out-python">尚未檢測…</pre>
+      <button onclick="check('python')">檢測 Python</button>
+    </div>
+    <div class="card" id="card-rust">
+      <h3><span class="dot" id="dot-rust"></span> Rust 服務</h3>
+      <small>Axum · <code>/api/rust/</code></small>
+      <pre id="out-rust">尚未檢測…</pre>
+      <button onclick="check('rust')">檢測 Rust</button>
+    </div>
+    <div class="card" id="card-db">
+      <h3><span class="dot" id="dot-db"></span> PostgreSQL</h3>
+      <small>經由 Node 寫入 visits 表</small>
+      <pre id="out-db">尚未檢測…</pre>
+      <button onclick="checkDB()">測試資料庫寫入</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>💬 留言板（PostgreSQL messages 表 → Node API）</h2>
+    <div class="row">
+      <input id="author" placeholder="暱稱" value="同學" />
+      <input id="content" placeholder="說點什麼…" value="Docker 微服務初體驗成功！" />
+      <button onclick="sendMsg()">送出</button>
+    </div>
+    <ul id="msgs"></ul>
+  </div>
+</main>
+
+<footer>課程作業 · Dockerfile + docker-compose.yml · <code>docker compose up --build</code> 一鍵啟動</footer>
+
+<script>
+const routes = {
+  node:   '/api/node/',
+  python: '/api/python/',
+  rust:   '/api/rust/',
+};
+async function check(name) {
+  const out = document.getElementById('out-' + name);
+  const dot = document.getElementById('dot-' + name);
+  out.textContent = '請求中…';
+  try {
+    const r = await fetch(routes[name]);
+    const j = await r.json();
+    out.textContent = JSON.stringify(j, null, 2);
+    dot.className = 'dot ok';
+  } catch (e) {
+    out.textContent = '❌ 連線失敗：' + e.message;
+    dot.className = 'dot bad';
+  }
+}
+async function checkDB() {
+  const out = document.getElementById('out-db');
+  const dot = document.getElementById('dot-db');
+  try {
+    const r = await fetch('/api/node/db');
+    const j = await r.json();
+    out.textContent = JSON.stringify(j, null, 2);
+    dot.className = 'dot ok';
+  } catch (e) { out.textContent = '❌ ' + e.message; dot.className = 'dot bad'; }
+}
+async function loadMsgs() {
+  try {
+    const r = await fetch('/api/node/messages');
+    const j = await r.json();
+    document.getElementById('msgs').innerHTML =
+      j.data.map(m => `<li><b>${m.author}</b>：${m.content} <small style="color:#64748b">(${new Date(m.created_at).toLocaleString()})</small></li>`).join('');
+  } catch {}
+}
+async function sendMsg() {
+  const author = document.getElementById('author').value;
+  const content = document.getElementById('content').value;
+  await fetch('/api/node/messages', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({author, content}) });
+  loadMsgs();
+}
+document.getElementById('refreshAll').onclick = () => { check('node'); check('python'); check('rust'); checkDB(); };
+check('node'); check('python'); check('rust'); checkDB(); loadMsgs();
+</script>
+</body>
+</html>

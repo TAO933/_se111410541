@@ -1,0 +1,105 @@
+services:
+  # ─── 反向代理 ─────────────────────────────
+  reverse-proxy:
+    image: nginx:1.27-alpine
+    container_name: micro-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - frontend
+      - api-node
+      - api-python
+      - api-rust
+    networks:
+      - micronet
+    restart: unless-stopped
+
+  # ─── 前端靜態站 ───────────────────────────
+  frontend:
+    build: ./frontend
+    container_name: micro-frontend
+    expose:
+      - "80"
+    networks:
+      - micronet
+    restart: unless-stopped
+
+  # ─── Node.js API ─────────────────────────
+  api-node:
+    build: ./backend-node
+    container_name: micro-node
+    expose:
+      - "3001"
+    environment:
+      PORT: 3001
+      DATABASE_URL: postgres://app:apppass@postgres:5432/appdb
+      PYTHON_URL: http://api-python:5000
+      RUST_URL: http://api-rust:8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - micronet
+    restart: unless-stopped
+
+  # ─── Python API ──────────────────────────
+  api-python:
+    build: ./backend-python
+    container_name: micro-python
+    expose:
+      - "5000"
+    environment:
+      PORT: 5000
+      DATABASE_URL: postgres://app:apppass@postgres:5432/appdb
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - micronet
+    restart: unless-stopped
+
+  # ─── Rust API ────────────────────────────
+  api-rust:
+    build: ./backend-rust
+    container_name: micro-rust
+    expose:
+      - "8000"
+    environment:
+      PORT: 8000
+    networks:
+      - micronet
+    restart: unless-stopped
+
+  # ─── PostgreSQL ──────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: micro-postgres
+    expose:
+      - "5432"
+    ports:
+      # 方便本機 psql / DBeaver 連線，繳交時可拿掉
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: apppass
+      POSTGRES_DB: appdb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d appdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - micronet
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+
+networks:
+  micronet:
+    driver: bridge
