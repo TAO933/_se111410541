@@ -1,4 +1,4 @@
-# 🐳 MicroDocker — Docker 微服務系統（學習記錄 + 實作）
+# 🐳 MicroDocker — Docker 微服務系統（使用opencode Muse Spark 1.3）
 
 > 課程作業：用 Docker 建置一個微服務系統，繳交內容包含 `Dockerfile` 與 `docker-compose.yml`，
 > 內含 **Nginx（reverse proxy）＋ PostgreSQL＋ Node.js / Python / Rust** 執行環境＋簡易 Web 介面。
