@@ -20,7 +20,7 @@
                   ▼        ▼        ▼        ▼
             ┌─────────┐┌────────┐┌────────┐┌────────┐    ┌──────────┐
             │frontend ││api-node││api-py  ││api-rust│───▶│ postgres │
-            │nginx靜態││Node 20 ││Py 3.12 ││Rust1.78│    │ v16-alpine│
+            │nginx靜態││Node 20 ││Py 3.12 ││bookworm│    │ v16-alpine│
             │  :80    ││ :3001  ││ :5000  ││ :8000  │◀───│  :5432   │
             └─────────┘└────────┘└────────┘└────────┘    └──────────┘
                  全部在同一 bridge network「micronet」，用 service name 當 DNS
@@ -83,7 +83,7 @@
 | `RUN` | 建置期執行（會留層） | `RUN npm install --omit=dev` / `RUN pip install -r requirements.txt` / `RUN cargo build --release` |
 | `EXPOSE` | 聲明監聽埠（文件性質，真正映射靠 compose `ports`） | `EXPOSE 3001` |
 | `CMD` | 容器啟動預設命令 | `CMD ["node","server.js"]` |
-| `COPY --from=builder` | 多階段建置，只拿產物 | Rust：編譯階段 `rust:1.78` → 執行階段 `debian-slim`，映像從 ~1GB 縮到 ~80MB |
+| `COPY --from=builder` | 多階段建置，只拿產物 | Rust：編譯階段 `rust:bookworm` → 執行階段 `debian-slim`，映像從 ~1GB 縮到 ~80MB |
 
 > **層快取（Layer Cache）心得**：把不常變的先 COPY（`package.json` / `requirements.txt` / `Cargo.toml`），
 > 再 `RUN install`，最後才 COPY 原始碼。這樣改一行 code 不會重裝依賴，build 快很多。
