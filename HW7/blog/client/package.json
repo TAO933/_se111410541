@@ -1,0 +1,9 @@
+{
+  "name": "blog-client",
+  "version": "1.0.0",
+  "description": "Blog frontend served by a tiny Node.js static server",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

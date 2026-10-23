@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>我的部落格</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1 data-testid="page-title">我的部落格</h1>
+      <p class="subtitle">以 Rust 後端 + Node.js 前端打造的現代軟體工程示範專案</p>
+    </header>
+
+    <section class="editor">
+      <h2>發表新文章</h2>
+      <form id="post-form" data-testid="post-form">
+        <input data-testid="input-title" id="title" name="title" placeholder="文章標題" required />
+        <input data-testid="input-author" id="author" name="author" placeholder="作者（選填）" />
+        <textarea data-testid="input-body" id="body" name="body" placeholder="文章內容" rows="4" required></textarea>
+        <button type="submit" data-testid="submit-btn">發表</button>
+        <span id="form-error" data-testid="form-error" class="error" hidden></span>
+      </form>
+    </section>
+
+    <section class="posts">
+      <h2>文章列表 <span data-testid="post-count" id="post-count"></span></h2>
+      <div id="post-list" data-testid="post-list"></div>
+      <p id="empty-msg" data-testid="empty-msg" class="muted">還沒有任何文章，快來發表第一篇吧！</p>
+    </section>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>
