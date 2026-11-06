@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>美味小館 - 線上點餐</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif; background: #fdf6ec; color: #333; }
+  header { background: #c0392b; color: #fff; padding: 16px; text-align: center; }
+  header h1 { font-size: 22px; }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; padding-bottom: 120px; }
+  h2.cat { margin: 20px 0 8px; color: #c0392b; border-left: 4px solid #c0392b; padding-left: 8px; }
+  .item { display: flex; align-items: center; justify-content: space-between; background: #fff; border-radius: 12px; padding: 12px 16px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .item .info { flex: 1; }
+  .item .name { font-size: 16px; font-weight: bold; }
+  .item .desc { font-size: 13px; color: #888; }
+  .item .price { color: #c0392b; font-weight: bold; margin: 0 12px; }
+  .item .qty { display: flex; align-items: center; gap: 8px; }
+  .qty button { width: 30px; height: 30px; border: none; border-radius: 8px; background: #c0392b; color: #fff; font-size: 16px; cursor: pointer; }
+  .qty button:disabled { background: #ccc; }
+  .item.soldout { opacity: .45; }
+  footer-bar, .cartbar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; box-shadow: 0 -2px 8px rgba(0,0,0,.1); padding: 12px 16px; max-width: 720px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .cartbar button.cta { flex: 1; padding: 12px; border: none; border-radius: 10px; background: #c0392b; color: #fff; font-size: 16px; cursor: pointer; }
+  .cartbar button.cta:disabled { background: #ccc; cursor: not-allowed; }
+  dialog { border: none; border-radius: 14px; padding: 20px; width: min(90vw, 380px); }
+  dialog::backdrop { background: rgba(0,0,0,.4); }
+  dialog label { display: block; margin: 10px 0 4px; font-size: 14px; }
+  dialog input, dialog textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; }
+  dialog .actions { display: flex; gap: 8px; margin-top: 16px; }
+  dialog .actions button { flex: 1; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-size: 15px; }
+  .ok-icon { font-size: 48px; text-align: center; }
+  .ok-info { text-align: center; margin: 12px 0; font-size: 16px; }
+</style>
+</head>
+<body>
+<header><h1>🍜 美味小館 - 線上點餐</h1></header>
+<main id="menu"></main>
+<div class="cartbar">
+  <span id="cart-total">🛒 共 $0 元</span>
+  <button class="cta" id="submit-btn" disabled>送出點餐</button>
+</div>
+
+<dialog id="order-dialog">
+  <form id="order-form" method="dialog">
+    <h3>確認訂單</h3>
+    <div id="dialog-summary" style="font-size:14px;color:#666;margin-top:8px;"></div>
+    <label for="customer_name">姓名 *</label>
+    <input id="customer_name" required placeholder="王小明" />
+    <label for="table_no">桌號 / 取餐號碼</label>
+    <input id="table_no" placeholder="例如：3 或 外帶" />
+    <label for="note">備註</label>
+    <textarea id="note" rows="2" placeholder="少辣、加蛋..."></textarea>
+    <div class="actions">
+      <button type="button" id="cancel-btn" style="background:#eee;">取消</button>
+      <button type="submit" style="background:#c0392b;color:#fff;">送出訂單</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="success-dialog">
+  <div class="ok-icon">✅</div>
+  <div class="ok-info" id="success-msg"></div>
+  <div class="actions">
+    <button style="background:#c0392b;color:#fff;" onclick="document.getElementById('success-dialog').close()">確定</button>
+  </div>
+</dialog>
+
+<script>
+const cart = new Map(); // menuItemId -> {item, qty}
+const $ = (s) => document.querySelector(s);
+
+async function loadMenu() {
+  const res = await fetch("/api/menu");
+  const items = await res.json();
+  const byCat = {};
+  items.forEach((it) => {
+    (byCat[it.category] ||= []).push(it);
+  });
+  const menuEl = $("#menu");
+  menuEl.innerHTML = "";
+  for (const [cat, list] of Object.entries(byCat)) {
+    const h = document.createElement("h2");
+    h.className = "cat";
+    h.textContent = cat;
+    menuEl.appendChild(h);
+    list.forEach((it) => {
+      const div = document.createElement("div");
+      div.className = "item" + (it.available ? "" : " soldout");
+      div.innerHTML = `
+        <div class="info"><div class="name">${it.name}</div><div class="desc">${it.description || ""}</div></div>
+        <div class="price">$${it.price}</div>
+        <div class="qty">
+          <button data-id="${it.id}" data-act="minus" ${it.available ? "" : "disabled"}>−</button>
+          <span id="q-${it.id}">0</span>
+          <button data-id="${it.id}" data-act="plus" ${it.available ? "" : "disabled"}>＋</button>
+        </div>`;
+      menuEl.appendChild(div);
+    });
+  }
+  menuEl.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-act]");
+    if (!btn) return;
+    const id = Number(btn.dataset.id);
+    const item = items.find((i) => i.id === id);
+    if (btn.dataset.act === "plus") {
+      cart.set(id, { item, qty: (cart.get(id)?.qty || 0) + 1 });
+    } else {
+      const q = (cart.get(id)?.qty || 0) - 1;
+      if (q <= 0) cart.delete(id);
+      else cart.set(id, { item, qty: q });
+    }
+    $("#q-" + id).textContent = cart.get(id)?.qty || 0;
+    updateTotal();
+  });
+}
+
+function updateTotal() {
+  let count = 0, total = 0;
+  cart.forEach(({ item, qty }) => { count += qty; total += item.price * qty; });
+  $("#cart-total").textContent = `🛒 ${count} 項，共 $${total} 元`;
+  $("#submit-btn").disabled = count === 0;
+}
+
+$("#cancel-btn").onclick = () => $("#order-dialog").close();
+$("#submit-btn").onclick = () => {
+  let summary = "";
+  cart.forEach(({ item, qty }) => { summary += `${item.name} × ${qty}<br>`; });
+  $("#dialog-summary").innerHTML = summary;
+  $("#order-dialog").showModal();
+};
+
+$("#order-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const body = {
+    customer_name: $("#customer_name").value.trim(),
+    table_no: $("#table_no").value.trim(),
+    note: $("#note").value.trim(),
+    items: [...cart.values()].map(({ item, qty }) => ({ menu_item_id: item.id, quantity: qty })),
+  };
+  const res = await fetch("/api/orders", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json();
+  if (res.ok) {
+    $("#success-msg").innerHTML = `訂單 <b>#${data.id}</b> 已送出！<br>總金額 <b>$${data.total}</b> 元`;
+    $("#order-dialog").close();
+    $("#success-dialog").showModal();
+    cart.clear();
+    updateTotal();
+    document.querySelectorAll("main span[id^='q-']").forEach((s) => (s.textContent = "0"));
+  } else {
+    $("#dialog-summary").innerHTML = `<span style="color:red">${data.error}</span>`;
+  }
+});
+
+loadMenu();
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "name": "food-ordering",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./public"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "food-ordering-db",
+      "database_id": "58e19b45-d2f7-47d1-aa11-252aa41442f4"
+    }
+  ]
+}

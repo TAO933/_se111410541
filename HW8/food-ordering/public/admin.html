@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>廚房訂單管理</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Microsoft JhengHei", sans-serif; background: #f5f5f5; }
+  header { background: #2c3e50; color: #fff; padding: 14px; display: flex; align-items: center; justify-content: space-between; }
+  main { max-width: 760px; margin: 0 auto; padding: 16px; }
+  .order { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .order.pending { border-left: 5px solid #e67e22; }
+  .order.completed { border-left: 5px solid #27ae60; opacity: .7; }
+  .order .head { display: flex; justify-content: space-between; margin-bottom: 6px; }
+  .order .no { font-size: 18px; font-weight: bold; }
+  .badge { padding: 2px 10px; border-radius: 999px; font-size: 12px; color: #fff; }
+  .order.pending .badge { background: #e67e22; }
+  .order.completed .badge { background: #27ae60; }
+  .order table { width: 100%; font-size: 14px; margin: 6px 0; border-collapse: collapse; }
+  .order td { padding: 3px 0; }
+  .order .total { text-align: right; font-weight: bold; color: #c0392b; }
+  .order .note { font-size: 13px; color: #888; }
+  .order .btns { display: flex; gap: 8px; margin-top: 8px; }
+  .order .btns button { padding: 6px 14px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; }
+  .btn-done { background: #27ae60; color: #fff; }
+  .btn-reopen { background: #e67e22; color: #fff; }
+  .btn-del { background: #aaa; color: #fff; margin-left: auto; }
+  .empty { text-align: center; color: #999; padding: 40px 0; }
+</style>
+</head>
+<body>
+<header>
+  <span>👨‍🍳 廚房訂單管理</span>
+  <span style="font-size:13px;"><a href="/" style="color:#9ad;">點餐頁</a> · <label style="cursor:pointer;"><input type="checkbox" id="show-done" style="vertical-align:-2px;"> 顯示已完成</label></span>
+</header>
+<main id="list"></main>
+
+<script>
+const $ = (s) => document.querySelector(s);
+
+async function loadOrders() {
+  const res = await fetch("/api/orders");
+  const orders = await res.json();
+  const showDone = $("#show-done").checked;
+  const el = $("#list");
+  const visible = showDone ? orders : orders.filter((o) => o.status === "pending");
+  if (!visible.length) {
+    el.innerHTML = '<div class="empty">目前沒有訂單 🍳</div>';
+    return;
+  }
+  el.innerHTML = visible.map((o) => `
+    <div class="order ${o.status}">
+      <div class="head">
+        <span class="no">#${o.id}　${o.customer_name} ${o.table_no ? "｜桌/號碼:" + o.table_no : ""}</span>
+        <span class="badge">${o.status === "pending" ? "處理中" : "已完成"}</span>
+      </div>
+      <div class="note">${o.created_at}${o.note ? "｜備註：" + o.note : ""}</div>
+      <table>
+        ${o.items.map((i) => `<tr><td style="width:70%;">${i.item_name}</td><td>× ${i.quantity}</td><td style="text-align:right;">$${i.price * i.quantity}</td></tr>`).join("")}
+      </table>
+      <div class="total">總計 $${o.total}</div>
+      <div class="btns">
+        ${o.status === "pending"
+          ? `<button class="btn-done" data-id="${o.id}" data-status="completed">✔ 完成</button>`
+          : `<button class="btn-reopen" data-id="${o.id}" data-status="pending">↩ 重新開啟</button>`}
+        <button class="btn-del" data-id="${o.id}" data-act="del">🗑 刪除</button>
+      </div>
+    </div>`).join("");
+}
+
+$("#list").addEventListener("click", async (e) => {
+  const btn = e.target.closest("button");
+  if (!btn) return;
+  const id = btn.dataset.id;
+  if (btn.dataset.act === "del") {
+    if (!confirm(`確定刪除訂單 #${id}？`)) return;
+    await fetch(`/api/orders/${id}`, { method: "DELETE" });
+  } else {
+    await fetch(`/api/orders/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: btn.dataset.status }),
+    });
+  }
+  loadOrders();
+});
+
+$("#show-done").onchange = loadOrders;
+loadOrders();
+setInterval(loadOrders, 10000);
+</script>
+</body>
+</html>
