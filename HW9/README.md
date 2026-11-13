@@ -6,6 +6,8 @@
 
 這個專案同時發佈為 npm 套件，可直接在自己的 Cloudflare Worker 中重用：
 
+https://www.npmjs.com/package/@taow8603/food-ordering?activeTab=readme
+
 ```bash
 npm install food-ordering
 ```
