@@ -82,7 +82,7 @@ flowchart LR
 pip install openai anthropic python-dotenv pydantic mcp
 ```
 
-Mermaid 圖可直接在 GitHub、GitLab、Obsidian、VS Code（Markdown Preview Mermaid Support）中.render。
+Mermaid 圖可直接在 GitHub、GitLab、Obsidian、VS Code（Markdown Preview Mermaid Support）中渲染。
 
 ---
 
